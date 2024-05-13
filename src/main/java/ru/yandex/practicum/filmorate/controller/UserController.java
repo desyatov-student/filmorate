@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -41,18 +42,15 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@Valid  @RequestBody User user) {
+    public User create(@Valid @RequestBody User user) {
         // проверяем выполнение необходимых условий
-        boolean exists = users.values().stream().map(User::getEmail).anyMatch(email -> email.equals(user.getEmail()));
-        if (exists) {
+        if (isEmailExist(user.getEmail())) {
             log.error("Creating user is failed. email = {} exists", user.getEmail());
             throw new DuplicatedDataException("User with email = " + user.getEmail() + " exists");
         }
         // формируем дополнительные данные
         user.setId(identifierGenerator.getNextId());
-        if (user.getName() == null) {
-            user.setName(user.getLogin());
-        }
+        updateUserNameIfNotExist(user, user);
         // сохраняем нового пользователя в памяти приложения
         users.put(user.getId(), user);
         log.info("Creating user is successful: {}", user);
@@ -66,33 +64,25 @@ public class UserController {
             log.error("Updating user is failed. user id is null {}", newUser);
             throw new ConditionsNotMetException("Id must be provided.");
         }
-        if (users.containsKey(newUser.getId())) {
-            User oldUser = users.get(newUser.getId());
-            String newEmail = newUser.getEmail();
-            boolean newEmailExists = users.values().stream()
-                    .anyMatch(user -> {
-                        if (user.getId().equals(oldUser.getId())) {
-                            return false;
-                        }
-                        return user.getEmail().equals(newEmail);
-                    });
-            if (newEmailExists) {
-                log.error("Updating user is failed. email = {} exists", newUser.getEmail());
-                throw new DuplicatedDataException("User with email = " + newUser.getEmail() + " exists");
-            }
-            oldUser.setEmail(newEmail);
-            oldUser.setLogin(newUser.getLogin());
-            if (newUser.getName() == null) {
-                oldUser.setName(newUser.getLogin());
-            } else {
-                oldUser.setName(newUser.getName());
-            }
-            oldUser.setBirthday(newUser.getBirthday());
-            log.info("Updating user is successful: {}", oldUser);
-            return oldUser;
+
+        if (!users.containsKey(newUser.getId())) {
+            log.error("User = {} is not found", newUser);
+            throw new NotFoundException("User with id = " + newUser.getId() + " is not found");
         }
-        log.error("User = {} is not found", newUser);
-        throw new NotFoundException("User with id = " + newUser.getId() + " is not found");
+
+        User oldUser = users.get(newUser.getId());
+        String newEmail = newUser.getEmail();
+
+        if (isUserExist(newUser)) {
+            log.error("Updating user is failed. email = {} exists", newUser.getEmail());
+            throw new DuplicatedDataException("User with email = " + newUser.getEmail() + " exists");
+        }
+        oldUser.setEmail(newEmail);
+        oldUser.setLogin(newUser.getLogin());
+        updateUserNameIfNotExist(oldUser, newUser);
+        oldUser.setBirthday(newUser.getBirthday());
+        log.info("Updating user is successful: {}", oldUser);
+        return oldUser;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -106,5 +96,28 @@ public class UserController {
         });
         log.error("User validation errors {} ", errors, ex);
         return errors;
+    }
+
+    private boolean isEmailExist(String email) {
+        return getUserByEmail(email).isPresent();
+    }
+
+    private Optional<User> getUserByEmail(String email) {
+        return users.values().stream()
+                .filter(user -> user.getEmail().equals(email))
+                .findFirst();
+    }
+
+    private boolean isUserExist(User user) {
+        Optional<User> userOpt = getUserByEmail(user.getEmail());
+        return userOpt.filter(value -> !value.getId().equals(user.getId())).isPresent();
+    }
+
+    private void updateUserNameIfNotExist(User target, User source) {
+        if (source.getName() == null) {
+            target.setName(source.getLogin());
+        } else {
+            target.setName(source.getName());
+        }
     }
 }

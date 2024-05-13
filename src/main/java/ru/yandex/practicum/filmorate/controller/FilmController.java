@@ -52,18 +52,18 @@ public class FilmController {
             log.error("Updating film is failed. film id is null {}", newFilm);
             throw new ConditionsNotMetException("Id must be provided.");
         }
-        if (films.containsKey(newFilm.getId())) {
-            Film oldFilm = films.get(newFilm.getId());
-            // если публикация найдена и все условия соблюдены, обновляем её содержимое
-            oldFilm.setName(newFilm.getName());
-            oldFilm.setDescription(newFilm.getDescription());
-            oldFilm.setReleaseDate(newFilm.getReleaseDate());
-            oldFilm.setDuration(newFilm.getDuration());
-            log.info("Updating film is successful: {}", oldFilm);
-            return oldFilm;
+        if (!films.containsKey(newFilm.getId())) {
+            log.error("Film = {} is not found", newFilm);
+            throw new NotFoundException("Film with id = " + newFilm.getId() + " is not found");
         }
-        log.error("Film = {} is not found", newFilm);
-        throw new NotFoundException("Film with id = " + newFilm.getId() + " is not found");
+        Film oldFilm = films.get(newFilm.getId());
+        // если публикация найдена и все условия соблюдены, обновляем её содержимое
+        oldFilm.setName(newFilm.getName());
+        oldFilm.setDescription(newFilm.getDescription());
+        oldFilm.setReleaseDate(newFilm.getReleaseDate());
+        oldFilm.setDuration(newFilm.getDuration());
+        log.info("Updating film is successful: {}", oldFilm);
+        return oldFilm;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
