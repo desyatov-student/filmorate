@@ -11,5 +11,6 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 public class ValidationErrorResponse {
+    private final String error;
     private final List<Violation> violations = new ArrayList<>();
 }
