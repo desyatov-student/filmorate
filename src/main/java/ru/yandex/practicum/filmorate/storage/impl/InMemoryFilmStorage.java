@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.service.IdentifierGenerator;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final IdentifierGenerator identifierGenerator;
 
     public Collection<Film> findAll() {
-        return films.values();
+        return films.values().stream()
+                .sorted(Comparator.comparing(Film::getId))
+                .toList();
     }
 
     @Override
