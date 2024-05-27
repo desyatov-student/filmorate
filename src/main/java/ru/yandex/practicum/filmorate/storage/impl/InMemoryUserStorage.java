@@ -110,7 +110,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public List<User> getCommonFriends(User user, User otherUser) {
         Set<User> userFriends = getFriendSet(user);
-        Set<User> otherUserFriends = getFriendSet(user);
+        Set<User> otherUserFriends = getFriendSet(otherUser);
         userFriends.retainAll(otherUserFriends);
         return userFriends.stream().toList();
     }
