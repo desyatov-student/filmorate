@@ -18,6 +18,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFound(final NotFoundException e) {
+        log.error("Not found error", e);
         return new ErrorResponse(
                 e.getMessage()
         );
@@ -26,6 +27,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleUnknownError(final Throwable e) {
+        log.error("Unknown error", e);
         return new ErrorResponse(
                 "Произошла непредвиденная ошибка."
         );

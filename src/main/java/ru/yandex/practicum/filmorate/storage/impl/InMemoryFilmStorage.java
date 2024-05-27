@@ -77,7 +77,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public List<Film> getPopular(Integer count) {
         int maxSize = (count >= films.size()) ? films.size() : count;
         return films.values().stream()
-                .sorted(new FilmLikeCountComparator())
+                .sorted(new FilmLikeCountComparator().reversed())
                 .limit(maxSize)
                 .toList();
     }

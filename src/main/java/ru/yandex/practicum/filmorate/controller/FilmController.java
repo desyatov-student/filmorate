@@ -68,7 +68,7 @@ public class FilmController {
         filmService.removeLike(id, userId);
     }
 
-    @GetMapping("/popular?count={count}")
+    @GetMapping("/popular")
     public List<Film> getPopular(@RequestParam(defaultValue = "10") Integer count) {
         return filmService.getPopular(count);
     }
