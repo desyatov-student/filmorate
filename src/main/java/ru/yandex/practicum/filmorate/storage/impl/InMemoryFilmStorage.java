@@ -20,13 +20,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class InMemoryFilmStorage implements FilmStorage {
 
-//    private class Like {
-//        private Film film;
-//        private HashSet<User>
-//    }
-
     private final Map<Long, Film> films = new HashMap<>();
-//    private final Map<Long, Set<User>> likes = new HashMap<>();
     private final IdentifierGenerator identifierGenerator;
 
     public Collection<Film> findAll() {
@@ -81,9 +75,10 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public List<Film> getPopular(Integer count) {
+        int maxSize = (count >= films.size()) ? films.size() : count;
         return films.values().stream()
                 .sorted(new FilmLikeCountComparator())
-                .limit(count)
+                .limit(maxSize)
                 .toList();
     }
 }
