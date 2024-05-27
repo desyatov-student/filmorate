@@ -84,10 +84,11 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User addFriend(User user, User friend) {
+    public void addFriend(User user, User friend) {
         Set<User> userFriends = getFriendSet(user);
         userFriends.add(friend);
-        return friend;
+        Set<User> friendFriends = getFriendSet(friend);
+        friendFriends.add(user);
     }
 
     @Override

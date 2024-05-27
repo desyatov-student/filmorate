@@ -36,10 +36,10 @@ public class UserService {
         return storage.update(newUser);
     }
 
-    public User addFriend(Long id, Long friendId) {
+    public void addFriend(Long id, Long friendId) {
         User user = getUser(id);
         User friend = getFriend(friendId);
-        return storage.addFriend(user, friend);
+        storage.addFriend(user, friend);
     }
 
     public void removeFriend(Long id, Long friendId) {
