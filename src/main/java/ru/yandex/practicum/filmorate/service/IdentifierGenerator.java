@@ -1,8 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.stereotype.Component;
-
-@Component
 public class IdentifierGenerator {
 
     public static final Long INITIAL_IDENTIFIER = 1L;

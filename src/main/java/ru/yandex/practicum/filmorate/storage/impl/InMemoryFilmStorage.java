@@ -22,7 +22,7 @@ import java.util.Optional;
 public class InMemoryFilmStorage implements FilmStorage {
 
     private final Map<Long, Film> films = new HashMap<>();
-    private final IdentifierGenerator identifierGenerator;
+    private final IdentifierGenerator identifierGenerator = new IdentifierGenerator();
 
     public Collection<Film> findAll() {
         return films.values().stream()

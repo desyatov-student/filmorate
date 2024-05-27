@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
@@ -26,12 +25,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Long, User> users = new HashMap<>();
     private final Map<Long, Set<User>> friends = new HashMap<>();
-    private final IdentifierGenerator identifierGenerator;
-
-    @Autowired
-    public InMemoryUserStorage(IdentifierGenerator identifierGenerator) {
-        this.identifierGenerator = identifierGenerator;
-    }
+    private final IdentifierGenerator identifierGenerator = new IdentifierGenerator();
 
     public Collection<User> findAll() {
         return users.values().stream()
