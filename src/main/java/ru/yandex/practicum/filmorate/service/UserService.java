@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -69,6 +70,6 @@ public class UserService {
 
     private User getUser(Long id, String errorMessage) {
         return storage.findById(id)
-                .orElseThrow(() -> new ConditionsNotMetException(errorMessage));
+                .orElseThrow(() -> new NotFoundException(errorMessage));
     }
 }

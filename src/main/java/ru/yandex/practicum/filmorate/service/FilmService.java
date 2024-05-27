@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -48,12 +49,12 @@ public class FilmService {
 
     private Film getFilm(Long id) {
         return storage.findById(id)
-                .orElseThrow(() -> new ConditionsNotMetException(String.format("Фильм с id = %d не найден", id)));
+                .orElseThrow(() -> new NotFoundException(String.format("Фильм с id = %d не найден", id)));
     }
 
     private User getUser(Long id) {
         return userService.findById(id)
-                .orElseThrow(() -> new ConditionsNotMetException(String.format("Пользователь с id = %d не найден", id)));
+                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id = %d не найден", id)));
     }
 
     public List<Film> getPopular(Integer count) {
