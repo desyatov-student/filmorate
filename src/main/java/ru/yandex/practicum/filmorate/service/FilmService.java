@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -9,10 +9,9 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class FilmService {
 
     private final FilmStorage storage;
@@ -22,8 +21,9 @@ public class FilmService {
         return storage.findAll();
     }
 
-    public Optional<Film> findById(Long filmId) {
-        return storage.findById(filmId);
+    public Film findById(Long filmId) {
+        return storage.findById(filmId)
+                .orElseThrow(() -> new NotFoundException(String.format("Фильм с id = %d не найден", filmId)));
     }
 
     public Film create(Film film) {
@@ -35,25 +35,19 @@ public class FilmService {
     }
 
     public void like(Long id, Long userId) {
-        User user = getUser(userId);
-        Film film = getFilm(id);
+        User user = findUserById(userId);
+        Film film = findById(id);
         storage.like(film, user.getId());
     }
 
     public void removeLike(Long id, Long userId) {
-        User user = getUser(userId);
-        Film film = getFilm(id);
+        User user = findUserById(userId);
+        Film film = findById(id);
         storage.removeLike(film, user.getId());
     }
 
-    private Film getFilm(Long id) {
-        return storage.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Фильм с id = %d не найден", id)));
-    }
-
-    private User getUser(Long id) {
-        return userService.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id = %d не найден", id)));
+    private User findUserById(Long id) {
+        return userService.findById(id);
     }
 
     public List<Film> getPopular(Integer count) {
