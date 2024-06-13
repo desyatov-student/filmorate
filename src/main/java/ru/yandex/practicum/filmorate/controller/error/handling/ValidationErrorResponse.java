@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.controller.ErrorHandling;
+package ru.yandex.practicum.filmorate.controller.error.handling;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,5 +11,6 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 public class ValidationErrorResponse {
+    private final String error;
     private final List<Violation> violations = new ArrayList<>();
 }

@@ -1,105 +1,76 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
-import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.IdentifierGenerator;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
 @Slf4j
+@RequiredArgsConstructor
 public class UserController {
 
-    private final Map<Long, User> users = new HashMap<>();
-    private final IdentifierGenerator identifierGenerator = new IdentifierGenerator();
+    private final UserService userService;
 
     @GetMapping
     public Collection<User> findAll() {
-        return users.values().stream()
-                .sorted(Comparator.comparing(User::getId))
-                .collect(Collectors.toList());
+        return userService.findAll();
+    }
+
+    @GetMapping("/{userId}")
+    public User findById(@PathVariable Long userId) {
+        return userService.findById(userId);
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public User create(@Valid @RequestBody User user) {
-        // проверяем выполнение необходимых условий
-        if (isEmailExist(user.getEmail())) {
-            log.error("Creating user is failed. email = {} exists", user.getEmail());
-            throw new DuplicatedDataException("User with email = " + user.getEmail() + " exists");
-        }
-        // формируем дополнительные данные
-        user.setId(identifierGenerator.getNextId());
-        updateUserNameIfNotExist(user, user);
-        // сохраняем нового пользователя в памяти приложения
-        users.put(user.getId(), user);
-        log.info("Creating user is successful: {}", user);
-        return user;
+        return userService.create(user);
     }
 
     @PutMapping
     public User update(@RequestBody User newUser) {
-        // проверяем необходимые условия
-        if (newUser.getId() == null) {
-            log.error("Updating user is failed. user id is null {}", newUser);
-            throw new ConditionsNotMetException("Id must be provided.");
-        }
-
-        if (!users.containsKey(newUser.getId())) {
-            log.error("User = {} is not found", newUser);
-            throw new NotFoundException("User with id = " + newUser.getId() + " is not found");
-        }
-
-        User oldUser = users.get(newUser.getId());
-        String newEmail = newUser.getEmail();
-
-        if (isUserExist(newUser)) {
-            log.error("Updating user is failed. email = {} exists", newUser.getEmail());
-            throw new DuplicatedDataException("User with email = " + newUser.getEmail() + " exists");
-        }
-        oldUser.setEmail(newEmail);
-        oldUser.setLogin(newUser.getLogin());
-        updateUserNameIfNotExist(oldUser, newUser);
-        oldUser.setBirthday(newUser.getBirthday());
-        log.info("Updating user is successful: {}", oldUser);
-        return oldUser;
+        return userService.update(newUser);
     }
 
-    private boolean isEmailExist(String email) {
-        return getUserByEmail(email).isPresent();
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(
+            @PathVariable Long id,
+            @PathVariable Long friendId
+    ) {
+        userService.addFriend(id, friendId);
     }
 
-    private Optional<User> getUserByEmail(String email) {
-        return users.values().stream()
-                .filter(user -> user.getEmail().equals(email))
-                .findFirst();
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void removeFriend(
+            @PathVariable Long id,
+            @PathVariable Long friendId
+    ) {
+        userService.removeFriend(id, friendId);
     }
 
-    private boolean isUserExist(User user) {
-        Optional<User> userOpt = getUserByEmail(user.getEmail());
-        return userOpt.filter(value -> !value.getId().equals(user.getId())).isPresent();
+    @GetMapping("/{id}/friends")
+    public List<User> getFriends(@PathVariable Long id) {
+        return userService.getFriends(id);
     }
 
-    private void updateUserNameIfNotExist(User target, User source) {
-        if (source.getName() == null) {
-            target.setName(source.getLogin());
-        } else {
-            target.setName(source.getName());
-        }
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+        return userService.getCommonFriends(id, otherId);
     }
 }
