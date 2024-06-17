@@ -1,0 +1,56 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table relationship {
+  id integer [pk]
+  following_user_id integer
+  followed_user_id integer
+  relationship_type_id timestamp
+}
+
+Table relationship_type {
+  id integer [pk]
+  name varchar
+}
+
+Table film {
+  id integer [pk]
+  name varchar
+  description varchar
+  release_date timestamp
+  duration integer
+  genre_id integer
+  rating_id integer
+}
+
+Table film_like {
+  id integer [pk]
+  film_id integer
+  user_id integer
+}
+
+Table user {
+  id integer [pk]
+  email varchar
+  login varchar
+  name varchar
+  birthday date
+}
+
+Table genre {
+  id integer [pk]
+  name varchar
+}
+
+Table rating {
+  id integer [pk]
+  name varchar
+}
+
+Ref: film.id < film_like.film_id
+Ref: user.id < film_like.user_id
+Ref: genre.id < film.genre_id
+Ref: rating.id < film.rating_id
+Ref: user.id < relationship.following_user_id
+Ref: user.id < relationship.followed_user_id
+Ref: relationship_type.id < relationship.relationship_type_id
