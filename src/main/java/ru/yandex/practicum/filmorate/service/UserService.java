@@ -78,7 +78,7 @@ public class UserService {
         User user = getUserById(id);
         User friend = getFriend(friendId);
         if (userDbStorage.hasFriend(user, friend)) {
-            String message = String.format("Friend request exists for userId = %d, friendId = %d", user.getId(), friend.getId());
+            String message = String.format("Friend exists for userId = %d, friendId = %d", user.getId(), friend.getId());
             log.error(message);
             throw new DuplicatedDataException(message);
         }
@@ -89,7 +89,7 @@ public class UserService {
         User user = getUserById(id);
         User friend = getFriend(friendId);
         if (!userDbStorage.removeFriend(user, friend)) {
-            String message = String.format("Friend request does not exists for userId = %d, friendId = %d", user.getId(), friend.getId());
+            String message = String.format("Friend does not exists for userId = %d, friendId = %d", user.getId(), friend.getId());
             log.error(message);
             throw new NotFoundException(message);
         }
