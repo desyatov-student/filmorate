@@ -9,10 +9,9 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.IdentifierGenerator;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -24,21 +23,21 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
     private final IdentifierGenerator identifierGenerator = new IdentifierGenerator();
 
-    public Collection<Film> findAll() {
+    public List<Film> findAll() {
         return films.values().stream()
                 .sorted(Comparator.comparing(Film::getId))
                 .toList();
     }
 
     @Override
-    public Optional<Film> findById(Long filmId) {
+    public Optional<Film> findFilmById(Long filmId) {
         if (!films.containsKey(filmId)) {
             return Optional.empty();
         }
         return Optional.ofNullable(films.get(filmId));
     }
 
-    public Film create(Film film) {
+    public Film save(Film film) {
         film.setId(identifierGenerator.getNextId());
         // сохраняем новую публикацию в памяти приложения
         films.put(film.getId(), film);
@@ -46,22 +45,22 @@ public class InMemoryFilmStorage implements FilmStorage {
         return film;
     }
 
-    public Film update(Film newFilm) {
+    public Film update(Film film) {
         // проверяем необходимые условия
-        if (newFilm.getId() == null) {
-            log.error("Updating film is failed. film id is null {}", newFilm);
+        if (film.getId() == null) {
+            log.error("Updating film is failed. film id is null {}", film);
             throw new ConditionsNotMetException("Id must be provided.");
         }
-        if (!films.containsKey(newFilm.getId())) {
-            log.error("Film = {} is not found", newFilm);
-            throw new NotFoundException("Film with id = " + newFilm.getId() + " is not found");
+        if (!films.containsKey(film.getId())) {
+            log.error("Film = {} is not found", film);
+            throw new NotFoundException("Film with id = " + film.getId() + " is not found");
         }
-        Film oldFilm = films.get(newFilm.getId());
+        Film oldFilm = films.get(film.getId());
         // если публикация найдена и все условия соблюдены, обновляем её содержимое
-        oldFilm.setName(newFilm.getName());
-        oldFilm.setDescription(newFilm.getDescription());
-        oldFilm.setReleaseDate(newFilm.getReleaseDate());
-        oldFilm.setDuration(newFilm.getDuration());
+        oldFilm.setName(film.getName());
+        oldFilm.setDescription(film.getDescription());
+        oldFilm.setReleaseDate(film.getReleaseDate());
+        oldFilm.setDuration(film.getDuration());
         log.info("Updating film is successful: {}", oldFilm);
         return oldFilm;
     }

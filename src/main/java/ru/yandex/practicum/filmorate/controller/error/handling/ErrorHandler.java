@@ -29,7 +29,7 @@ public class ErrorHandler {
     public ErrorResponse handleUnknownError(final Throwable e) {
         log.error("Unknown error", e);
         return new ErrorResponse(
-                "Произошла непредвиденная ошибка."
+                "Произошла непредвиденная ошибка. " + e.getMessage()
         );
     }
 
