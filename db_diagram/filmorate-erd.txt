@@ -1,16 +1,10 @@
 // Use DBML to define your database structure
 // Docs: https://dbml.dbdiagram.io/docs
 
-Table relationships {
+Table friends {
   id integer [pk]
-  following_user_id integer
-  followed_user_id integer
-  relationship_type_id timestamp
-}
-
-Table relationship_types {
-  id integer [pk]
-  name varchar
+  user_id integer
+  friend_id integer
 }
 
 Table films {
@@ -51,6 +45,5 @@ Ref: films.id < film_likes.film_id
 Ref: users.id < film_likes.user_id
 Ref: genres.id < films.genre_id
 Ref: ratings.id < films.rating_id
-Ref: users.id < relationships.following_user_id
-Ref: users.id < relationships.followed_user_id
-Ref: relationship_types.id < relationships.relationship_type_id
+Ref: users.id < friends.user_id
+Ref: users.id < friends.friend_id
