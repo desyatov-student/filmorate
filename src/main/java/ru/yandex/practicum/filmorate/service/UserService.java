@@ -74,7 +74,7 @@ public class UserService {
         return userMapper.toUserDto(updatedUser);
     }
 
-    public void createFriendRequest(Long id, Long friendId) {
+    public void createFriend(Long id, Long friendId) {
         User user = getUserById(id);
         User friend = getFriend(friendId);
         if (userDbStorage.hasFriend(user, friend)) {
