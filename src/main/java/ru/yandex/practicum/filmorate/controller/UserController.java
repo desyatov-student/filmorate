@@ -49,6 +49,11 @@ public class UserController {
         return userService.update(userId, request);
     }
 
+    @PutMapping
+    public UserDto update(@RequestBody UpdateUserRequest request) {
+        return userService.update(request.getId(), request);
+    }
+
     @PutMapping("/{id}/friends/{friendId}")
     public void createFriend(
             @PathVariable Long id,
