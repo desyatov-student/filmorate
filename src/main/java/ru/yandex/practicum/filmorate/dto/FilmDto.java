@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 public class FilmDto {
@@ -13,6 +14,6 @@ public class FilmDto {
     private String description;
     private LocalDate releaseDate;
     private Integer duration;
-    private Long genreId;
-    private Long ratingId;
+    private Set<Long> genres;
+    private Long mpa;
 }

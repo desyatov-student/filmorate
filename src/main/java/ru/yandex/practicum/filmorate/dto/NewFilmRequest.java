@@ -35,8 +35,8 @@ public class NewFilmRequest {
     private final Set<Long> likes = new HashSet<>();
 
     @NotNull(message = "Обязательное поле")
-    private Long genreId;
+    private Set<Long> genres;
 
     @NotNull(message = "Обязательное поле")
-    private Long ratingId;
+    private Long mpa;
 }

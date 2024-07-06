@@ -43,7 +43,7 @@ public class FilmController {
     }
 
     @PutMapping("/{filmId}")
-    public FilmDto update(Long filmId, @Valid @RequestBody UpdateFilmRequest request) {
+    public FilmDto update(@PathVariable Long filmId, @Valid @RequestBody UpdateFilmRequest request) {
         return filmService.update(filmId, request);
     }
 
