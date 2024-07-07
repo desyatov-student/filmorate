@@ -88,11 +88,7 @@ public class UserService {
     public void removeFriend(Long id, Long friendId) {
         User user = getUserById(id);
         User friend = getFriend(friendId);
-        if (!userDbStorage.removeFriend(user, friend)) {
-            String message = String.format("Friend does not exists for userId = %d, friendId = %d", user.getId(), friend.getId());
-            log.error(message);
-            throw new NotFoundException(message);
-        }
+        userDbStorage.removeFriend(user, friend);
     }
 
     public List<UserDto> getFriends(Long id) {

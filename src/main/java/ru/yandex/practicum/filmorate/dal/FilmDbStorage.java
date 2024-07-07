@@ -26,7 +26,7 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
             ARRAY_AGG(fg.GENRE_ID) AS genres,
             count(fl.ID) AS count
             FROM FILMS f
-            JOIN film_genres fg ON fg.FILM_ID = f.id
+            LEFT JOIN film_genres fg ON fg.FILM_ID = f.id
             JOIN film_likes fl ON fl.FILM_ID = f.id
             GROUP BY f.ID
             ORDER BY count DESC
