@@ -4,16 +4,21 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.dto.GenreDto;
+import ru.yandex.practicum.filmorate.dto.MpaDto;
 import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.dto.UserDto;
-import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
+import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
 import java.util.List;
 
@@ -23,6 +28,8 @@ import java.util.List;
 public class FilmService {
 
     private final FilmStorage filmDbStorage;
+    private final GenreStorage genreDbStorage;
+    private final MpaStorage mpaDbStorage;
     private final UserService userService;
     private final FilmMapper filmMapper = new FilmMapperImpl();
 
@@ -38,6 +45,8 @@ public class FilmService {
     }
 
     public FilmDto create(NewFilmRequest request) {
+        validateGenres(request.getGenres());
+        validateMpa(request.getMpa());
         Film film = filmMapper.toFilm(request);
         film = filmDbStorage.save(film);
         log.info("Creating film is successful: {}", film);
@@ -45,16 +54,51 @@ public class FilmService {
     }
 
     public FilmDto update(Long filmId, UpdateFilmRequest request) {
-        if (request.getGenres() != null && request.getGenres().isEmpty()) {
-            String message = String.format("Updating film is failed. Genres must be provided. %s", request);
-            log.error(message);
-            throw new ConditionsNotMetException(message);
+        if (request.getGenres() != null && !request.getGenres().isEmpty()) {
+            checkGenresForExisting(request.getGenres());
+        }
+        if (request.getMpa() != null) {
+            checkMpaForExisting(request.getMpa());
         }
         Film film = getFilmById(filmId);
         Film updatedFilm = filmMapper.updateFilm(film, request);
         updatedFilm = filmDbStorage.update(updatedFilm);
         log.info("Updating film is successful: {}", updatedFilm);
         return filmMapper.toFilmDto(updatedFilm);
+    }
+
+    private void validateGenres(List<GenreDto> genres) {
+        if (genres == null || genres.isEmpty()) {
+            String message = "Genres must be provided.";
+            log.error(message);
+            throw new InternalServerException(message);
+        } else {
+            checkGenresForExisting(genres);
+        }
+    }
+
+    private void checkGenresForExisting(List<GenreDto> genres) {
+        for (GenreDto genre : genres) {
+            if (genreDbStorage.findById(genre.getId()).isEmpty()) {
+                throw new ValidationException(String.format("Genre not found id=%s", genre.getId()));
+            }
+        }
+    }
+
+    private void validateMpa(MpaDto mpa) {
+        if (mpa == null) {
+            String message = "Creating film is failed. Mpa must be provided.";
+            log.error(message);
+            throw new InternalServerException(message);
+        } else {
+            checkMpaForExisting(mpa);
+        }
+    }
+
+    private void checkMpaForExisting(MpaDto mpa) {
+        if (mpaDbStorage.findById(mpa.getId()).isEmpty()) {
+            throw new ValidationException(String.format("Mpa not found id=%s", mpa.getId()));
+        }
     }
 
     public void like(Long id, Long userId) {

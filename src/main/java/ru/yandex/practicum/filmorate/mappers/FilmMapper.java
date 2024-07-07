@@ -10,10 +10,10 @@ import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.model.Film;
 
-@Mapper
+@Mapper(uses = { MpaMapper.class, GenreMapper.class })
 public interface FilmMapper {
 
-    FilmDto toFilmDto(Film user);
+    FilmDto toFilmDto(Film film);
 
     @Mapping(target = "id", ignore = true)
     Film toFilm(NewFilmRequest request);

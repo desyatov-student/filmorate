@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.validation.FilmReleaseDate;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -39,7 +40,7 @@ public class Film {
 
     private final Set<Long> likes = new HashSet<>();
 
-    private Set<Long> genres;
+    private List<Long> genres;
 
     @NotNull(message = "Обязательное поле")
     private Long mpa;

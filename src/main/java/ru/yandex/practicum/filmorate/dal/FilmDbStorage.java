@@ -37,7 +37,8 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
             ARRAY_AGG(fg.GENRE_ID) AS genres
             FROM FILMS f
             LEFT JOIN film_genres fg ON fg.FILM_ID = f.id
-            WHERE f.ID = ?;
+            WHERE f.ID = ?
+            GROUP BY f.ID;
             """;
     private static final String INSERT_QUERY = """
             INSERT INTO films

@@ -7,10 +7,9 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Component
 public class FilmRowMapper implements RowMapper<Film> {
@@ -25,13 +24,13 @@ public class FilmRowMapper implements RowMapper<Film> {
         builder.duration(resultSet.getInt("duration"));
         try {
             Object[] objects = (Object[]) resultSet.getArray("genres").getArray();
-            Set<Long> set = Arrays.stream(objects)
+            List<Long> list = Arrays.stream(objects)
                     .map(String::valueOf)
                     .map(Long::valueOf)
-                    .collect(Collectors.toSet());
-            builder.genres(set);
+                    .toList();
+            builder.genres(list);
         } catch (Exception e) {
-            builder.genres(new HashSet<>());
+            builder.genres(new ArrayList<>());
         }
         builder.mpa(resultSet.getLong("mpa_id"));
         return builder.build();
