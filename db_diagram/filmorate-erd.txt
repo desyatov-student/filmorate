@@ -13,14 +13,19 @@ Table films {
   description varchar
   release_date timestamp
   duration integer
-  genre_id integer
-  rating_id integer
+  mpa_id integer
 }
 
 Table film_likes {
   id integer [pk]
   film_id integer
   user_id integer
+}
+
+Table film_genres {
+  id integer [pk]
+  film_id integer
+  genre_id integer
 }
 
 Table users {
@@ -36,14 +41,15 @@ Table genres {
   name varchar
 }
 
-Table ratings {
+Table mpa {
   id integer [pk]
   name varchar
 }
 
 Ref: films.id < film_likes.film_id
 Ref: users.id < film_likes.user_id
-Ref: genres.id < films.genre_id
-Ref: ratings.id < films.rating_id
+Ref: genres.id < film_genres.genre_id
+Ref: films.id < film_genres.film_id
+Ref: mpa.id < films.mpa_id
 Ref: users.id < friends.user_id
 Ref: users.id < friends.friend_id
