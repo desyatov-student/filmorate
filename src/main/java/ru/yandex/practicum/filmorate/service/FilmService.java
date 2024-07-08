@@ -16,10 +16,13 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 @Slf4j
@@ -48,6 +51,7 @@ public class FilmService {
         validateGenres(request.getGenres());
         validateMpa(request.getMpa());
         Film film = filmMapper.toFilm(request);
+        removeGenreDuplicates(film);
         film = filmDbStorage.save(film);
         log.info("Creating film is successful: {}", film);
         return filmMapper.toFilmDto(getFilmById(film.getId()));
@@ -60,9 +64,19 @@ public class FilmService {
         }
         Film film = getFilmById(filmId);
         film = filmMapper.updateFilm(film, request);
+        removeGenreDuplicates(film);
         filmDbStorage.update(film);
         log.info("Updating film is successful: {}", film);
         return filmMapper.toFilmDto(getFilmById(filmId));
+    }
+
+    private void removeGenreDuplicates(Film film) {
+        if (film.getGenres() == null || film.getGenres().isEmpty()) {
+            return;
+        }
+        LinkedHashSet<Genre> set = new LinkedHashSet<>(film.getGenres());
+        ArrayList<Genre> arrayList = new ArrayList<>(set);
+        film.setGenres(arrayList);
     }
 
     private void validateGenres(List<GenreDto> genres) {

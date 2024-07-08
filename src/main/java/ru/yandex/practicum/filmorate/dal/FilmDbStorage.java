@@ -44,16 +44,11 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
     private static final String FIND_BY_ID_QUERY = """
             SELECT f.*,
             m.NAME AS mpa_name,
-            ARRAY_AGG(fg.ID) AS genre_ids,
-            ARRAY_AGG(fg.NAME) AS genre_names
+            ARRAY_AGG(g.ID) AS genre_ids,
+            ARRAY_AGG(g.NAME) AS genre_names
             FROM FILMS f
-            LEFT JOIN (
-            SELECT DISTINCT
-                fg.FILM_ID,
-                g.ID,
-                g.NAME
-                FROM FILM_GENRES fg
-                LEFT JOIN genres g ON g.ID = fg.GENRE_ID) fg ON fg.FILM_ID = f.id
+            LEFT JOIN film_genres fg ON fg.FILM_ID = f.id
+            LEFT JOIN genres g ON g.ID = fg.GENRE_ID
             LEFT JOIN mpa m ON m.ID = f.MPA_ID
             WHERE f.ID = ?
             GROUP BY f.ID;
