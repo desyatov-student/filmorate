@@ -116,7 +116,7 @@ public class FilmTests {
     private Film createFilm() {
         return new Film(null, "film name",
                 "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tatio",
-                LocalDate.of(1895, 12, 28), 60, List.of(1L), 1L);
+                LocalDate.of(1895, 12, 28), 60, List.of(new Genre(1L, "name")), new Mpa(1L, "name"));
     }
 
     private static Stream<Arguments> validate_Failed_nameIsNotValid() {

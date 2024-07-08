@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.List;
@@ -16,27 +17,44 @@ import java.util.Optional;
 public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
     private static final String FIND_ALL_QUERY = """
             SELECT f.*,
-            ARRAY_AGG(fg.GENRE_ID) AS genres
+            m.NAME AS mpa_name,
+            ARRAY_AGG(DISTINCT g.ID) AS genre_ids,
+            ARRAY_AGG(DISTINCT g.NAME) AS genre_names
             FROM FILMS f
             LEFT JOIN film_genres fg ON fg.FILM_ID = f.id
+            LEFT JOIN genres g ON g.ID = fg.GENRE_ID
+            LEFT JOIN mpa m ON m.ID = f.MPA_ID
             GROUP BY f.ID;
             """;
     private static final String FIND_POPULAR_QUERY = """
             SELECT f.*,
-            ARRAY_AGG(fg.GENRE_ID) AS genres,
+            m.NAME AS mpa_name,
+            ARRAY_AGG(DISTINCT g.ID) AS genre_ids,
+            ARRAY_AGG(DISTINCT g.NAME) AS genre_names,
             count(fl.ID) AS count
             FROM FILMS f
             LEFT JOIN film_genres fg ON fg.FILM_ID = f.id
-            JOIN film_likes fl ON fl.FILM_ID = f.id
+            LEFT JOIN film_likes fl ON fl.FILM_ID = f.id
+            LEFT JOIN genres g ON g.ID = fg.GENRE_ID
+            LEFT JOIN mpa m ON m.ID = f.MPA_ID
             GROUP BY f.ID
             ORDER BY count DESC
             LIMIT ?;
             """;
     private static final String FIND_BY_ID_QUERY = """
             SELECT f.*,
-            ARRAY_AGG(fg.GENRE_ID) AS genres
+            m.NAME AS mpa_name,
+            ARRAY_AGG(fg.ID) AS genre_ids,
+            ARRAY_AGG(fg.NAME) AS genre_names
             FROM FILMS f
-            LEFT JOIN film_genres fg ON fg.FILM_ID = f.id
+            LEFT JOIN (
+            SELECT DISTINCT
+                fg.FILM_ID,
+                g.ID,
+                g.NAME
+                FROM FILM_GENRES fg
+                LEFT JOIN genres g ON g.ID = fg.GENRE_ID) fg ON fg.FILM_ID = f.id
+            LEFT JOIN mpa m ON m.ID = f.MPA_ID
             WHERE f.ID = ?
             GROUP BY f.ID;
             """;
@@ -87,7 +105,7 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),
-                film.getMpa()
+                film.getMpa().getId()
         );
         film.setId(id);
         saveFilmGenres(film);
@@ -102,7 +120,7 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),
-                film.getMpa(),
+                film.getMpa().getId(),
                 film.getId()
         );
         saveFilmGenres(film);
@@ -139,8 +157,8 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
             return;
         }
         delete(DELETE_FILM_GENRES_QUERY, film.getId());
-        for (Long genreId : film.getGenres()) {
-            insert(INSERT_FILM_GENRES_QUERY, film.getId(), genreId);
+        for (Genre genre : film.getGenres()) {
+            insert(INSERT_FILM_GENRES_QUERY, film.getId(), genre.getId());
         }
     }
 }

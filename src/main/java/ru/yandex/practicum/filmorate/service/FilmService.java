@@ -50,29 +50,23 @@ public class FilmService {
         Film film = filmMapper.toFilm(request);
         film = filmDbStorage.save(film);
         log.info("Creating film is successful: {}", film);
-        return filmMapper.toFilmDto(film);
+        return filmMapper.toFilmDto(getFilmById(film.getId()));
     }
 
     public FilmDto update(Long filmId, UpdateFilmRequest request) {
-        if (request.getGenres() != null && !request.getGenres().isEmpty()) {
-            checkGenresForExisting(request.getGenres());
-        }
+        validateGenres(request.getGenres());
         if (request.getMpa() != null) {
             checkMpaForExisting(request.getMpa());
         }
         Film film = getFilmById(filmId);
-        Film updatedFilm = filmMapper.updateFilm(film, request);
-        updatedFilm = filmDbStorage.update(updatedFilm);
-        log.info("Updating film is successful: {}", updatedFilm);
-        return filmMapper.toFilmDto(updatedFilm);
+        film = filmMapper.updateFilm(film, request);
+        filmDbStorage.update(film);
+        log.info("Updating film is successful: {}", film);
+        return filmMapper.toFilmDto(getFilmById(filmId));
     }
 
     private void validateGenres(List<GenreDto> genres) {
-        if (genres == null || genres.isEmpty()) {
-            String message = "Genres must be provided.";
-            log.error(message);
-            throw new InternalServerException(message);
-        } else {
+        if (genres != null && !genres.isEmpty()) {
             checkGenresForExisting(genres);
         }
     }

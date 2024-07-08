@@ -35,7 +35,6 @@ public class NewFilmRequest {
 
     private final Set<Long> likes = new HashSet<>();
 
-    @NotNull(message = "Обязательное поле")
     private List<GenreDto> genres;
 
     @NotNull(message = "Обязательное поле")

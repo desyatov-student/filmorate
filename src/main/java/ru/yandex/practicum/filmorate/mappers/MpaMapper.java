@@ -2,14 +2,9 @@ package ru.yandex.practicum.filmorate.mappers;
 
 import org.mapstruct.Mapper;
 import ru.yandex.practicum.filmorate.dto.MpaDto;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 @Mapper
 public interface MpaMapper {
-    default MpaDto map(Long id) {
-        return new MpaDto(id);
-    }
-
-    default Long map(MpaDto mpaDto) {
-        return mpaDto.getId();
-    }
+    MpaDto map(Mpa mpa);
 }

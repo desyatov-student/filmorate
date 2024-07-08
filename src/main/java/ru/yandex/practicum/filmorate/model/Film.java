@@ -40,8 +40,8 @@ public class Film {
 
     private final Set<Long> likes = new HashSet<>();
 
-    private List<Long> genres;
+    private List<Genre> genres;
 
     @NotNull(message = "Обязательное поле")
-    private Long mpa;
+    private Mpa mpa;
 }
