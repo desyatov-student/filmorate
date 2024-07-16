@@ -3,17 +3,17 @@ package ru.yandex.practicum.filmorate.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import ru.yandex.practicum.filmorate.validation.FilmReleaseDate;
+import ru.yandex.practicum.filmorate.validation.PositiveAndNotNull;
+import ru.yandex.practicum.filmorate.validation.ValidDescriptionAndNotBlank;
+import ru.yandex.practicum.filmorate.validation.ValidReleaseDateAndNotNull;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 @Data
+@AllArgsConstructor
 public class NewFilmRequest {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
@@ -21,21 +21,16 @@ public class NewFilmRequest {
     @NotBlank(message = "Не должно быть пустым")
     private String name;
 
-    @NotNull(message = "Обязательное поле")
-    @Size(max = 200, message = "Должно быть до 200 символов")
+    @ValidDescriptionAndNotBlank
     private String description;
 
-    @NotNull(message = "Обязательное поле")
-    @FilmReleaseDate
+    @ValidReleaseDateAndNotNull
     private LocalDate releaseDate;
 
-    @NotNull(message = "Обязательное поле")
-    @Positive(message = "Продолжительность должна быть положительной")
+    @PositiveAndNotNull
     private Integer duration;
 
-    private final Set<Long> likes = new HashSet<>();
-
-    private List<GenreDto> genres;
+    private LinkedHashSet<GenreDto> genres;
 
     @NotNull(message = "Обязательное поле")
     private MpaDto mpa;

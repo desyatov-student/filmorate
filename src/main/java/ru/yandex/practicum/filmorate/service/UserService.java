@@ -27,13 +27,13 @@ public class UserService {
 
     public List<UserDto> getUsers() {
         return userDbStorage.findAll().stream()
-                .map(userMapper::toUserDto)
+                .map(userMapper::toDto)
                 .toList();
     }
 
     public UserDto getById(Long userId) {
         User user = getUserById(userId, String.format("Пользователь с id = %d не найден", userId));
-        return userMapper.toUserDto(user);
+        return userMapper.toDto(user);
     }
 
     public UserDto create(NewUserRequest request) {
@@ -52,7 +52,7 @@ public class UserService {
         User user = userMapper.toUser(request);
         user = userDbStorage.save(user);
         log.info("Creating user is successful: {}", user);
-        return userMapper.toUserDto(user);
+        return userMapper.toDto(user);
     }
 
     public UserDto update(Long userId, UpdateUserRequest request) {
@@ -71,7 +71,7 @@ public class UserService {
         userMapper.updateUser(updatedUser, request);
         updatedUser = userDbStorage.update(updatedUser);
         log.info("Updating user is successful: {}", updatedUser);
-        return userMapper.toUserDto(updatedUser);
+        return userMapper.toDto(updatedUser);
     }
 
     public void createFriend(Long id, Long friendId) {
@@ -94,7 +94,7 @@ public class UserService {
     public List<UserDto> getFriends(Long id) {
         User user = getUserById(id);
         return userDbStorage.getFriends(user).stream()
-                .map(userMapper::toUserDto)
+                .map(userMapper::toDto)
                 .toList();
     }
 
@@ -102,7 +102,7 @@ public class UserService {
         User user = getUserById(id);
         User otherUser = getUserById(otherId);
         return userDbStorage.getCommonFriends(user, otherUser).stream()
-                .map(userMapper::toUserDto)
+                .map(userMapper::toDto)
                 .toList();
     }
 

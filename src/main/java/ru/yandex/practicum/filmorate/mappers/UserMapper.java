@@ -13,7 +13,7 @@ import ru.yandex.practicum.filmorate.model.User;
 @Mapper
 public interface UserMapper {
 
-    UserDto toUserDto(User user);
+    UserDto toDto(User user);
 
     @Mapping(target = "id", ignore = true)
     User toUser(NewUserRequest request);

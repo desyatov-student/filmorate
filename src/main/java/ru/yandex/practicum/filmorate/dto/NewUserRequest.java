@@ -1,29 +1,24 @@
 package ru.yandex.practicum.filmorate.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.validation.PastAndNotNull;
+import ru.yandex.practicum.filmorate.validation.ValidEmailAndNotBlank;
+import ru.yandex.practicum.filmorate.validation.ValidLoginAndNotBlank;
 
 import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
 public class NewUserRequest {
-    @NotBlank(message = "Не должно быть пустым")
-    @Email(message = "Должен быть корректный e-mail адрес")
+    @ValidEmailAndNotBlank
     private String email;
 
-    @NotBlank(message = "Не должно быть пустым")
-    @Pattern(regexp = "^\\S+$", message = "Должен быть без пробелов")
+    @ValidLoginAndNotBlank
     private String login;
 
     private String name;
 
-    @NotNull(message = "Обязательное поле")
-    @Past(message = "Дата рождения должна быть меньше текущей даты")
+    @PastAndNotNull
     private LocalDate birthday;
 }

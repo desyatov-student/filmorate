@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import ru.yandex.practicum.filmorate.dto.NewUserRequest;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -20,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class UserTests {
 
-
     Validator validator;
 
     public UserTests() {
@@ -31,11 +31,11 @@ public class UserTests {
     @Test
     void validate_Success_userIsValid() {
         // Given
-        User user = createUser();
+        NewUserRequest user = createNewUserRequest();
 
         // When
 
-        Set<ConstraintViolation<User>> validates = validator.validate(user);
+        Set<ConstraintViolation<NewUserRequest>> validates = validator.validate(user);
 
         // Then
 
@@ -46,7 +46,7 @@ public class UserTests {
     @MethodSource
     void validate_Failed_emailIsNotValid(String email, List<String> expectedErrors) {
         // Given
-        User user = createUser();
+        NewUserRequest user = createNewUserRequest();
         user.setEmail(email);
 
         // When
@@ -64,7 +64,7 @@ public class UserTests {
     @MethodSource
     void validate_Failed_loginIsNotValid(String login, List<String> expectedErrors) {
         // Given
-        User user = createUser();
+        NewUserRequest user = createNewUserRequest();
         user.setLogin(login);
 
         // When
@@ -85,7 +85,7 @@ public class UserTests {
     @MethodSource
     void validate_Failed_birthdayIsNotValid(LocalDate birthday, List<String> expectedErrors) {
         // Given
-        User user = createUser();
+        NewUserRequest user = createNewUserRequest();
         user.setBirthday(birthday);
 
         // When
@@ -99,30 +99,30 @@ public class UserTests {
         assertEquals(expectedErrors, errors);
     }
 
-    private User createUser() {
-        return new User(null, "email@mail.ru", "login", null, LocalDate.of(1990, 1, 1));
+    private NewUserRequest createNewUserRequest() {
+        return new NewUserRequest("email@mail.ru", "login", null, LocalDate.of(1990, 1, 1));
     }
 
     private static Stream<Arguments> validate_Failed_emailIsNotValid() {
         return Stream.of(
-                Arguments.of("email.email.ru", List.of("Должен быть корректный e-mail адрес")),
-                Arguments.of("", List.of("Не должно быть пустым")),
-                Arguments.of(null, List.of("Не должно быть пустым"))
+                Arguments.of("email.email.ru", List.of("must be a well-formed email address")),
+                Arguments.of("", List.of("must be a well-formed email address")),
+                Arguments.of(null, List.of("must be a well-formed email address"))
         );
     }
 
     private static Stream<Arguments> validate_Failed_loginIsNotValid() {
         return Stream.of(
-                Arguments.of("log in", List.of("Должен быть без пробелов")),
-                Arguments.of("", List.of("Не должно быть пустым", "Должен быть без пробелов")),
-                Arguments.of(null, List.of("Не должно быть пустым"))
+                Arguments.of("log in", List.of("must be without spaces login")),
+                Arguments.of("", List.of("must be without spaces login")),
+                Arguments.of(null, List.of("must be without spaces login"))
         );
     }
 
     private static Stream<Arguments> validate_Failed_birthdayIsNotValid() {
         return Stream.of(
-                Arguments.of(LocalDate.of(3025, 1, 1), List.of("Дата рождения должна быть меньше текущей даты")),
-                Arguments.of(null, List.of("Обязательное поле"))
+                Arguments.of(LocalDate.of(3025, 1, 1), List.of("must be in past and not null")),
+                Arguments.of(null, List.of("must be in past and not null"))
         );
     }
 }

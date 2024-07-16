@@ -16,12 +16,10 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -38,23 +36,22 @@ public class FilmService {
 
     public List<FilmDto> getFilms() {
         return filmDbStorage.findAll().stream()
-                .map(filmMapper::toFilmDto)
+                .map(filmMapper::toDto)
                 .toList();
     }
 
     public FilmDto getById(Long filmId) {
         Film film = getFilmById(filmId);
-        return filmMapper.toFilmDto(film);
+        return filmMapper.toDto(film);
     }
 
     public FilmDto create(NewFilmRequest request) {
         validateGenres(request.getGenres());
         validateMpa(request.getMpa());
         Film film = filmMapper.toFilm(request);
-        removeGenreDuplicates(film);
         film = filmDbStorage.save(film);
         log.info("Creating film is successful: {}", film);
-        return filmMapper.toFilmDto(getFilmById(film.getId()));
+        return filmMapper.toDto(getFilmById(film.getId()));
     }
 
     public FilmDto update(Long filmId, UpdateFilmRequest request) {
@@ -64,28 +61,18 @@ public class FilmService {
         }
         Film film = getFilmById(filmId);
         film = filmMapper.updateFilm(film, request);
-        removeGenreDuplicates(film);
         filmDbStorage.update(film);
         log.info("Updating film is successful: {}", film);
-        return filmMapper.toFilmDto(getFilmById(filmId));
+        return filmMapper.toDto(getFilmById(filmId));
     }
 
-    private void removeGenreDuplicates(Film film) {
-        if (film.getGenres() == null || film.getGenres().isEmpty()) {
-            return;
-        }
-        LinkedHashSet<Genre> set = new LinkedHashSet<>(film.getGenres());
-        ArrayList<Genre> arrayList = new ArrayList<>(set);
-        film.setGenres(arrayList);
-    }
-
-    private void validateGenres(List<GenreDto> genres) {
+    private void validateGenres(LinkedHashSet<GenreDto> genres) {
         if (genres != null && !genres.isEmpty()) {
             checkGenresForExisting(genres);
         }
     }
 
-    private void checkGenresForExisting(List<GenreDto> genres) {
+    private void checkGenresForExisting(LinkedHashSet<GenreDto> genres) {
         for (GenreDto genre : genres) {
             if (genreDbStorage.findById(genre.getId()).isEmpty()) {
                 throw new ValidationException(String.format("Genre not found id=%s", genre.getId()));
@@ -128,7 +115,7 @@ public class FilmService {
 
     public List<FilmDto> getPopular(Integer count) {
         return filmDbStorage.getPopular(count).stream()
-                .map(filmMapper::toFilmDto)
+                .map(filmMapper::toDto)
                 .toList();
     }
 

@@ -13,13 +13,12 @@ import ru.yandex.practicum.filmorate.model.Film;
 @Mapper(uses = { MpaMapper.class, GenreMapper.class })
 public interface FilmMapper {
 
-    FilmDto toFilmDto(Film film);
+    FilmDto toDto(Film film);
 
     @Mapping(target = "id", ignore = true)
     Film toFilm(NewFilmRequest request);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "likes", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Film updateFilm(@MappingTarget Film film, UpdateFilmRequest request);
 }
