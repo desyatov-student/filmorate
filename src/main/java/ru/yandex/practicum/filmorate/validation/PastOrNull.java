@@ -27,7 +27,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @ConstraintComposition(CompositionType.OR)
 @ReportAsSingleViolation
 public @interface PastOrNull {
-    String message() default "must be in past and or null";
+    String message() default "must be in past or null";
 
     Class<?>[] groups() default {};
 
