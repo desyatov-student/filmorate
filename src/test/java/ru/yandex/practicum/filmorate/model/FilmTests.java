@@ -8,9 +8,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import ru.yandex.practicum.filmorate.dto.GenreDto;
+import ru.yandex.practicum.filmorate.dto.MpaDto;
+import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -30,11 +34,11 @@ public class FilmTests {
     @Test
     void validate_Success_filmIsValid() {
         // Given
-        Film film = createFilm();
+        NewFilmRequest film = createNewFilmRequest();
 
         // When
 
-        Set<ConstraintViolation<Film>> validates = validator.validate(film);
+        Set<ConstraintViolation<NewFilmRequest>> validates = validator.validate(film);
 
         // Then
 
@@ -45,7 +49,7 @@ public class FilmTests {
     @MethodSource
     void validate_Failed_nameIsNotValid(String name, List<String> expectedErrors) {
         // Given
-        Film film = createFilm();
+        NewFilmRequest film = createNewFilmRequest();
         film.setName(name);
 
         // When
@@ -63,7 +67,7 @@ public class FilmTests {
     @MethodSource
     void validate_Failed_descriptionIsNotValid(String description, List<String> expectedErrors) {
         // Given
-        Film film = createFilm();
+        NewFilmRequest film = createNewFilmRequest();
         film.setDescription(description);
 
         // When
@@ -81,7 +85,7 @@ public class FilmTests {
     @MethodSource
     void validate_Failed_releaseDateIsNotValid(LocalDate releaseDate, List<String> expectedErrors) {
         // Given
-        Film film = createFilm();
+        NewFilmRequest film = createNewFilmRequest();
         film.setReleaseDate(releaseDate);
 
         // When
@@ -99,7 +103,7 @@ public class FilmTests {
     @MethodSource
     void validate_Failed_durationIsNotValid(Integer duration, List<String> expectedErrors) {
         // Given
-        Film film = createFilm();
+        NewFilmRequest film = createNewFilmRequest();
         film.setDuration(duration);
 
         // When
@@ -113,10 +117,10 @@ public class FilmTests {
         assertEquals(expectedErrors, errors);
     }
 
-    private Film createFilm() {
-        return new Film(null, "film name",
+    private NewFilmRequest createNewFilmRequest() {
+        return new NewFilmRequest(null, "film name",
                 "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tatio",
-                LocalDate.of(1895, 12, 28), 60);
+                LocalDate.of(1895, 12, 28), 60, new LinkedHashSet<>(List.of(new GenreDto(1L, "name"))), new MpaDto(1L, "name"));
     }
 
     private static Stream<Arguments> validate_Failed_nameIsNotValid() {
@@ -130,24 +134,24 @@ public class FilmTests {
         return Stream.of(
                 Arguments.of(
                         "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tatio1",
-                        List.of("Должно быть до 200 символов")
+                        List.of("must be less 200 characters")
                 ),
-                Arguments.of(null, List.of("Обязательное поле"))
+                Arguments.of(null, List.of("must be less 200 characters"))
         );
     }
 
     private static Stream<Arguments> validate_Failed_releaseDateIsNotValid() {
         return Stream.of(
-                Arguments.of(LocalDate.of(1895, 1, 1), List.of("Дата выхода фильма раньше минимальной")),
-                Arguments.of(null, List.of("Обязательное поле"))
+                Arguments.of(LocalDate.of(1895, 1, 1), List.of("must be in past")),
+                Arguments.of(null, List.of("must be in past"))
         );
     }
 
     private static Stream<Arguments> validate_Failed_durationIsNotValid() {
         return Stream.of(
-                Arguments.of(-1, List.of("Продолжительность должна быть положительной")),
-                Arguments.of(0, List.of("Продолжительность должна быть положительной")),
-                Arguments.of(null, List.of("Обязательное поле"))
+                Arguments.of(-1, List.of("must be positive and not null")),
+                Arguments.of(0, List.of("must be positive and not null")),
+                Arguments.of(null, List.of("must be positive and not null"))
         );
     }
 }

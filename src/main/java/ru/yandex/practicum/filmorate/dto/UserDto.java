@@ -1,15 +1,13 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.time.LocalDate;
 
 @Data
-@Builder(toBuilder = true)
-@AllArgsConstructor
-public class User {
+public class UserDto {
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
     private String email;
     private String login;

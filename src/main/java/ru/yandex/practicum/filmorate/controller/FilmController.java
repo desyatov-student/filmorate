@@ -12,10 +12,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
+import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -27,23 +28,28 @@ public class FilmController {
     private final FilmService filmService;
 
     @GetMapping
-    public Collection<Film> findAll() {
-        return filmService.findAll();
+    public List<FilmDto> getFilms() {
+        return filmService.getFilms();
     }
 
     @GetMapping("/{filmId}")
-    public Film findById(@PathVariable Long filmId) {
-        return filmService.findById(filmId);
+    public FilmDto findById(@PathVariable Long filmId) {
+        return filmService.getById(filmId);
     }
 
     @PostMapping
-    public Film create(@Valid @RequestBody Film film) {
-        return filmService.create(film);
+    public FilmDto create(@Valid @RequestBody NewFilmRequest request) {
+        return filmService.create(request);
+    }
+
+    @PutMapping("/{filmId}")
+    public FilmDto update(@PathVariable Long filmId, @Valid @RequestBody UpdateFilmRequest request) {
+        return filmService.update(filmId, request);
     }
 
     @PutMapping
-    public Film update(@Valid @RequestBody Film newFilm) {
-        return filmService.update(newFilm);
+    public FilmDto update(@Valid @RequestBody UpdateFilmRequest request) {
+        return filmService.update(request.getId(), request);
     }
 
     @PutMapping("/{id}/like/{userId}")
@@ -63,7 +69,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopular(@RequestParam(defaultValue = "10") Integer count) {
+    public List<FilmDto> getPopular(@RequestParam(defaultValue = "10") Integer count) {
         return filmService.getPopular(count);
     }
 }
