@@ -10,7 +10,9 @@ import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.model.Film;
 
-@Mapper(uses = { MpaMapper.class, GenreMapper.class })
+import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
+
+@Mapper(componentModel = SPRING)
 public interface FilmMapper {
 
     FilmDto toDto(Film film);
