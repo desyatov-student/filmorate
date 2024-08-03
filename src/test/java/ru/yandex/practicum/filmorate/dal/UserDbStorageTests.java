@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate;
+package ru.yandex.practicum.filmorate.dal;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -6,11 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.test.context.ContextConfiguration;
-import ru.yandex.practicum.filmorate.dal.UserDbStorage;
 import ru.yandex.practicum.filmorate.dal.mappers.UserRowMapper;
+import ru.yandex.practicum.filmorate.helpers.TestData;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -27,7 +26,7 @@ class UserDbStorageTests {
 	public void testFindUserById_returnUser_UserExists() {
 
 		// Given
-		User initialUser = createUser();
+		User initialUser = TestData.createUser();
 		Long userId = userStorage.save(initialUser).getId();
 
 		// When
@@ -44,9 +43,5 @@ class UserDbStorageTests {
 							assertThat(user).hasFieldOrPropertyWithValue("birthday", initialUser.getBirthday());
 				});
 
-	}
-
-	private User createUser() {
-		return new User(null, "email@mail.ru", "login", "name", LocalDate.of(1990, 1, 1));
 	}
 }
