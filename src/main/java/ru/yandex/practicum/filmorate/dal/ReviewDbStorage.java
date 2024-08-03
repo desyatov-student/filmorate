@@ -3,10 +3,8 @@ package ru.yandex.practicum.filmorate.dal;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.dal.mappers.ReviewRateRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.model.ReviewRate;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 
 import java.util.List;
@@ -43,16 +41,6 @@ public class ReviewDbStorage  extends BaseDbStorage<Review> implements ReviewSto
             """;
     private static final String DELETE_REVIEW_QUERY = "DELETE reviews WHERE id = ?;";
 
-    // ReviewRate
-    private static final String FIND_REVIEW_RATE_QUERY = """
-            SELECT * FROM review_rates WHERE review_id = ? AND user_id = ?;
-            """;
-    private static final String INSERT_REVIEW_RATE_QUERY = """
-            INSERT INTO review_rates (review_id, user_id, is_like)
-            VALUES (?, ?, ?);
-            """;
-    private static final String DELETE_REVIEW_RATE_QUERY = "DELETE review_rates WHERE review_id = ? AND user_id = ?;";
-
     public ReviewDbStorage(JdbcTemplate jdbc, RowMapper<Review> mapper) {
         super(jdbc, mapper);
     }
@@ -73,7 +61,7 @@ public class ReviewDbStorage  extends BaseDbStorage<Review> implements ReviewSto
     }
 
     @Override
-    public Review save(Review review) {
+    public Review create(Review review) {
         long id = insert(
                 INSERT_QUERY,
                 review.getContent(),
@@ -100,36 +88,5 @@ public class ReviewDbStorage  extends BaseDbStorage<Review> implements ReviewSto
     @Override
     public void remove(Review review) {
         delete(DELETE_REVIEW_QUERY, review.getId());
-    }
-
-    @Override
-    public Optional<ReviewRate> findReviewRate(Review review, Long userId) {
-        ReviewRateRowMapper rowMapper = new ReviewRateRowMapper();
-        return findOne(FIND_REVIEW_RATE_QUERY, rowMapper, review.getId(), userId);
-    }
-
-    @Override
-    public ReviewRate createLike(Review review, Long userId) {
-        return createReviewRate(review, userId, true);
-    }
-
-    @Override
-    public ReviewRate createDislike(Review review, Long userId) {
-        return createReviewRate(review, userId, false);
-    }
-
-    @Override
-    public boolean removeRate(Review review, Long userId) {
-        return delete(DELETE_REVIEW_RATE_QUERY, review.getId(), userId);
-    }
-
-    private ReviewRate createReviewRate(Review review, Long userId, boolean isLike) {
-        long id = insert(
-                INSERT_REVIEW_RATE_QUERY,
-                review.getId(),
-                userId,
-                isLike
-        );
-        return new ReviewRate(id, review.getId(), userId, isLike);
     }
 }
