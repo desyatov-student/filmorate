@@ -73,6 +73,12 @@ class FilmDbStorageTests {
             films.add(filmStorage.save(film));
         }
 
+        /*
+        Фильмы под индексами 0, 1, 2 Лайкало большинство в том числе и Пользователь под индексом 9
+        Фильмы под индексами 3 и 4 лайкали другие, которые лайкали и Фильмы под индексами 0, 1, 2
+        Пользователь под индексом 9 не лайкал фильмы под индексами 3 и 4 поэтому они в рекомендациях
+         */
+
         filmStorage.like(films.get(0), users.get(0).getId());
         filmStorage.like(films.get(1), users.get(0).getId());
         filmStorage.like(films.get(2), users.get(0).getId());
