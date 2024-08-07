@@ -37,7 +37,6 @@ public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
             WHERE r.USER_ID = ? AND r.FRIEND_ID in
             (SELECT FRIEND_ID FROM friends WHERE USER_ID = ?);""";
 
-
     public UserDbStorage(JdbcTemplate jdbc, RowMapper<User> mapper) {
         super(jdbc, mapper);
     }
@@ -80,8 +79,8 @@ public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
     }
 
     @Override
-    public void saveFriend(User user, User friend) {
-        insert(
+    public Long saveFriend(User user, User friend) {
+        return insert(
                 INSERT_FRIEND_QUERY,
                 user.getId(),
                 friend.getId()
