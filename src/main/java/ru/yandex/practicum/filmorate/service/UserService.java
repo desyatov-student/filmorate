@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.FeedDto;
-
 import ru.yandex.practicum.filmorate.dto.NewUserRequest;
 import ru.yandex.practicum.filmorate.dto.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.UserDto;
@@ -97,7 +96,6 @@ public class UserService {
             log.error(message);
             throw new DuplicatedDataException(message);
         }
-
         userDbStorage.saveFriend(user, friend);
         feedStorage.save(
                 new FeedDto(
