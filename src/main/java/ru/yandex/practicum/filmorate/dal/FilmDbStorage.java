@@ -37,10 +37,11 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
             LEFT JOIN film_likes fl ON fl.FILM_ID = f.id
             LEFT JOIN genres g ON g.ID = fg.GENRE_ID
             LEFT JOIN mpa m ON m.ID = f.MPA_ID
+            %S
             GROUP BY f.ID
             ORDER BY count DESC
             LIMIT ?;
-            """;
+                        """;
     private static final String FIND_BY_ID_QUERY = """
             SELECT f.*,
             m.NAME AS mpa_name,
@@ -139,8 +140,25 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
     }
 
     @Override
-    public List<Film> getPopular(Integer count) {
-        return findMany(FIND_POPULAR_QUERY, count);
+    public List<Film> getPopular(Long count, Long genreId, Long year) {
+        String findQuery;
+        if (genreId != null && year != null) {
+            findQuery = String.format(FIND_POPULAR_QUERY,
+                    "WHERE  f.ID IN (SELECT FILM_ID FROM film_genres WHERE GENRE_ID = ?) " +
+                            "AND YEAR (f.RELEASE_DATE) = ?");
+            return findMany(findQuery, genreId, year, count);
+        } else if (genreId != null) {
+            findQuery = String.format(FIND_POPULAR_QUERY,
+                    "WHERE  f.ID IN (SELECT FILM_ID FROM film_genres WHERE GENRE_ID = ?)");
+            return findMany(findQuery, genreId, count);
+        } else if (year != null) {
+            findQuery = String.format(FIND_POPULAR_QUERY,
+                    "WHERE YEAR (f.RELEASE_DATE) = ?");
+            return findMany(findQuery, year, count);
+        } else {
+            findQuery = String.format(FIND_POPULAR_QUERY, " ");
+            return findMany(findQuery, count);
+        }
     }
 
     private void saveFilmGenres(Film film) {

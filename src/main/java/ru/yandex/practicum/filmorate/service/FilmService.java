@@ -9,10 +9,7 @@ import ru.yandex.practicum.filmorate.dto.MpaDto;
 import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.dto.UserDto;
-import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
-import ru.yandex.practicum.filmorate.exception.InternalServerException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -20,6 +17,7 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
+import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -67,16 +65,16 @@ public class FilmService {
     }
 
     private void validateGenres(LinkedHashSet<GenreDto> genres) {
-        if (genres != null && !genres.isEmpty()) {
-            checkGenresForExisting(genres);
+        if (genres != null) {
+            genres.stream()
+                    .map(GenreDto::getId)
+                    .forEach(this::checkGenresForExisting);
         }
     }
 
-    private void checkGenresForExisting(LinkedHashSet<GenreDto> genres) {
-        for (GenreDto genre : genres) {
-            if (genreDbStorage.findById(genre.getId()).isEmpty()) {
-                throw new ValidationException(String.format("Genre not found id=%s", genre.getId()));
-            }
+    private void checkGenresForExisting(Long genryId) {
+        if (genreDbStorage.findById(genryId).isEmpty()) {
+            throw new ValidationException(String.format("Genre not found id=%s", genryId));
         }
     }
 
@@ -113,8 +111,19 @@ public class FilmService {
         filmDbStorage.removeLike(film, user.getId());
     }
 
-    public List<FilmDto> getPopular(Integer count) {
-        return filmDbStorage.getPopular(count).stream()
+    public List<FilmDto> getPopular(Long count, Long genryId, Long year) {
+        if (genryId != null) {
+            checkGenresForExisting(genryId);
+        }
+        if (count < 0) {
+            log.error("Find popular films is failed. Count is negative");
+            throw new ConditionsNotMetException("Count is negative");
+        }
+        if (year != null && year > LocalDate.now().getYear()) {
+            log.error("Find popular films is failed. Year is not exist");
+            throw new ConditionsNotMetException("Year is not exist");
+        }
+        return filmDbStorage.getPopular(count, genryId, year).stream()
                 .map(filmMapper::toDto)
                 .toList();
     }
