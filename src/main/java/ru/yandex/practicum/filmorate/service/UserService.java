@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.FeedDto;
 import ru.yandex.practicum.filmorate.dto.NewUserRequest;
 import ru.yandex.practicum.filmorate.dto.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.UserDto;
@@ -12,8 +13,10 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.mappers.UserMapperImpl;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +27,7 @@ public class UserService {
 
     private final UserStorage userDbStorage;
     private final UserMapper userMapper = new UserMapperImpl();
+    private final FeedStorage feedStorage;
 
     public List<UserDto> getUsers() {
         return userDbStorage.findAll().stream()
@@ -82,9 +86,11 @@ public class UserService {
             log.error(message);
             throw new DuplicatedDataException(message);
         }
-        userDbStorage.saveFriend(user, friend);
+        Long eventId = userDbStorage.saveFriend(user, friend);
+        feedStorage.save(new FeedDto(LocalDateTime.now(), user.getId(),"FRIEND", eventId, friend.getId()));
     }
 
+    //тут
     public void removeFriend(Long id, Long friendId) {
         User user = getUserById(id);
         User friend = getFriend(friendId);
