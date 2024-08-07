@@ -18,6 +18,7 @@ import ru.yandex.practicum.filmorate.mappers.UserMapperImpl;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.FeedStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.Instant;
@@ -97,22 +98,32 @@ public class UserService {
             throw new DuplicatedDataException(message);
         }
 
-        Long eventId = userDbStorage.saveFriend(user, friend);
+        userDbStorage.saveFriend(user, friend);
         feedStorage.save(
                 new FeedDto(
                         Instant.now().toEpochMilli(),
                         user.getId(),
                         "FRIEND",
                         "ADD" ,
-                        eventId,
                         friend.getId()));
     }
 
-    //тут
     public void removeFriend(Long id, Long friendId) {
         User user = getUserById(id);
         User friend = getFriend(friendId);
         userDbStorage.removeFriend(user, friend);
+        feedStorage.save(
+                new FeedDto(
+                        Instant.now().toEpochMilli(),
+                        user.getId(),
+                        "FRIEND",
+                        "REMOVE" ,
+                        friend.getId()));
+    }
+
+    public void removeUser(Long id) {
+        User user = getUserById(id);
+        userDbStorage.removeUser(user);
     }
 
     public void removeUser(Long id) {

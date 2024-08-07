@@ -3,14 +3,19 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.DirectorDto;
+import ru.yandex.practicum.filmorate.dto.FeedDto;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.GenreDto;
-import ru.yandex.practicum.filmorate.dto.DirectorDto;
 import ru.yandex.practicum.filmorate.dto.MpaDto;
 import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.dto.UserDto;
-import ru.yandex.practicum.filmorate.exception.*;
+import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
+import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
+import ru.yandex.practicum.filmorate.exception.InternalServerException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -19,13 +24,12 @@ import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.model.SortOrderFilmsByDirector;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.FeedStorage;
-
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -133,14 +137,13 @@ public class FilmService {
             log.error(message);
             throw new DuplicatedDataException(message);
         }
-        Long eventId = filmDbStorage.like(film, user.getId());
+        filmDbStorage.like(film, user.getId());
         feedDbStorage.save(
                 new FeedDto(
                         Instant.now().toEpochMilli(),
                         userId,
                         "LIKE",
                         "ADD",
-                        eventId,
                         id));
     }
 
@@ -148,6 +151,13 @@ public class FilmService {
         UserDto user = getUserById(userId);
         Film film = getFilmById(id);
         filmDbStorage.removeLike(film, user.getId());
+        feedDbStorage.save(
+                new FeedDto(
+                        Instant.now().toEpochMilli(),
+                        userId,
+                        "LIKE",
+                        "REMOVE",
+                        id));
     }
 
     public void removeFilm(Long id) {
