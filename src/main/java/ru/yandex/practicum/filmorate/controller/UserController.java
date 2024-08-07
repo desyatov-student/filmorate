@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import ru.yandex.practicum.filmorate.dto.FeedDto;
 import ru.yandex.practicum.filmorate.dto.NewUserRequest;
 import ru.yandex.practicum.filmorate.dto.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.UserDto;
+import ru.yandex.practicum.filmorate.service.FeedService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
@@ -27,6 +29,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final FeedService feedService;
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
@@ -86,5 +89,11 @@ public class UserController {
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<UserDto> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
         return userService.getCommonFriends(id, otherId);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/{id}/feed")
+    public List<FeedDto> getFeeds(@PathVariable Long id) {
+        return feedService.getFeed(id);
     }
 }
