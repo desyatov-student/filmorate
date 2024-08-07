@@ -17,7 +17,6 @@ import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -42,6 +41,11 @@ public class FilmService {
     public FilmDto getById(Long filmId) {
         Film film = getFilmById(filmId);
         return filmMapper.toDto(film);
+    }
+
+    public Film getFilmById(Long id) {
+        return filmDbStorage.findFilmById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Фильм с id = %d не найден", id)));
     }
 
     public FilmDto create(NewFilmRequest request) {
@@ -103,14 +107,13 @@ public class FilmService {
             log.error(message);
             throw new DuplicatedDataException(message);
         }
-        Long eventId = filmDbStorage.like(film, user.getId());
+        filmDbStorage.like(film, user.getId());
         feedDbStorage.save(
                 new FeedDto(
                         Instant.now().toEpochMilli(),
                         userId,
                         "LIKE",
                         "ADD",
-                        eventId,
                         id));
     }
 
@@ -118,17 +121,24 @@ public class FilmService {
         UserDto user = getUserById(userId);
         Film film = getFilmById(id);
         filmDbStorage.removeLike(film, user.getId());
+        feedDbStorage.save(
+                new FeedDto(
+                        Instant.now().toEpochMilli(),
+                        userId,
+                        "LIKE",
+                        "REMOVE",
+                        id));
+    }
+
+    public void removeFilm(Long id) {
+        Film film = getFilmById(id);
+        filmDbStorage.removeFilm(film);
     }
 
     public List<FilmDto> getPopular(Integer count) {
         return filmDbStorage.getPopular(count).stream()
                 .map(filmMapper::toDto)
                 .toList();
-    }
-
-    private Film getFilmById(Long id) {
-        return filmDbStorage.findFilmById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Фильм с id = %d не найден", id)));
     }
 
     private UserDto getUserById(Long id) {

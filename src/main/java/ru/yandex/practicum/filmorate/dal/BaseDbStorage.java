@@ -18,8 +18,12 @@ public class BaseDbStorage<T> {
     protected final RowMapper<T> mapper;
 
     protected Optional<T> findOne(String query, Object... params) {
+        return findOne(query, mapper, params);
+    }
+
+    protected <S> Optional<S> findOne(String query, RowMapper<S> mapper, Object... params) {
         try {
-            T result = jdbc.queryForObject(query, mapper, params);
+            S result = jdbc.queryForObject(query, mapper, params);
             return Optional.ofNullable(result);
         } catch (EmptyResultDataAccessException ignored) {
             return Optional.empty();

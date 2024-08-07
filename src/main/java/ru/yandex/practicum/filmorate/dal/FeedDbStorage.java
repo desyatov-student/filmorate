@@ -13,8 +13,8 @@ import java.util.List;
 public class FeedDbStorage extends BaseDbStorage<Feed> implements FeedStorage {
     private static final String FIND_FEED_BY_ID_QUERY = "SELECT * FROM feeds where user_id = ?";
     private static final String PUT_EVENT_QUERY = """ 
-            INSERT INTO feeds (timestamp, user_id, event_type, operation, event_id, entity_id)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO feeds (timestamp, user_id, event_type, operation, entity_id)
+            VALUES (?, ?, ?, ?, ?)
             """;
 
     public FeedDbStorage(JdbcTemplate jdbc, RowMapper<Feed> mapper) {
@@ -34,7 +34,6 @@ public class FeedDbStorage extends BaseDbStorage<Feed> implements FeedStorage {
                 feed.getUserId(),
                 feed.getEventType(),
                 feed.getOperation(),
-                feed.getEventId(),
                 feed.getEntityId()
         );
     }

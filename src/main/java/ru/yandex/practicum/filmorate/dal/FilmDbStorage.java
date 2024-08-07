@@ -77,6 +77,41 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
             VALUES (?, ?);
             """;
     private static final String DELETE_FILM_LIKES_QUERY = "DELETE film_likes WHERE film_id = ? AND user_id = ?;";
+    private static final String DELETE_FILM_QUERY = "DELETE films WHERE id = ?;";
+
+    // recommendations
+    private static final String FIND_RECOMMENDATIONS_QUERY = """
+            WITH recommends_films_ids AS (
+                WITH fl AS (SELECT DISTINCT USER_ID, FILM_ID FROM FILM_LIKES WHERE USER_ID = ?)
+                SELECT
+                FL2.USER_ID,
+                fl2.FILM_ID
+                FROM (
+                    SELECT
+                    fl2.USER_ID,
+                    COUNT(DISTINCT fl2.FILM_ID) FILM_LIKES_count,
+                    COUNT(DISTINCT fl3.FILM_ID) FILMS_HAVE_NOT_LIKED_YET_count
+                    FROM fl
+                    JOIN film_likes fl2 ON fl2.FILM_ID = fl.FILM_ID AND FL.USER_ID != fl2.USER_ID
+                    JOIN (SELECT DISTINCT f.USER_ID, f.FILM_ID FROM film_likes f JOIN fl ON f.FILM_ID != fl.FILM_ID) fl3 ON FL2.USER_ID = fl3.USER_ID
+                    GROUP BY fl2.USER_ID
+                    ORDER BY FILM_LIKES_count DESC
+                    LIMIT 1
+                ) ui
+                JOIN film_likes fl2 ON fl2.USER_ID = ui.USER_ID
+                WHERE fl2.FILM_ID NOT IN (SELECT DISTINCT FILM_ID FROM fl)
+            )
+            SELECT f.*,
+            m.NAME AS mpa_name,
+            ARRAY_AGG(DISTINCT g.ID) AS genre_ids,
+            ARRAY_AGG(DISTINCT g.NAME) AS genre_names
+            FROM recommends_films_ids rfi
+            JOIN films f ON rfi.FILM_ID = f.id
+            LEFT JOIN film_genres fg ON fg.FILM_ID = f.id
+            LEFT JOIN genres g ON g.ID = fg.GENRE_ID
+            LEFT JOIN mpa m ON m.ID = f.MPA_ID
+            GROUP BY f.ID;
+            """;
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper);
@@ -139,8 +174,18 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
     }
 
     @Override
+    public void removeFilm(Film film) {
+        delete(DELETE_FILM_QUERY, film.getId());
+    }
+
+    @Override
     public List<Film> getPopular(Integer count) {
         return findMany(FIND_POPULAR_QUERY, count);
+    }
+
+    @Override
+    public List<Film> findRecommendations(Long userId) {
+        return findMany(FIND_RECOMMENDATIONS_QUERY, userId);
     }
 
     private void saveFilmGenres(Film film) {

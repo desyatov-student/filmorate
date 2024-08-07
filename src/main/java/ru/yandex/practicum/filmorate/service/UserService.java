@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.FeedDto;
 import ru.yandex.practicum.filmorate.dto.NewUserRequest;
 import ru.yandex.practicum.filmorate.dto.UpdateUserRequest;
@@ -10,10 +11,13 @@ import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.mappers.FilmMapper;
+import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
 import ru.yandex.practicum.filmorate.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.mappers.UserMapperImpl;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FeedStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.Instant;
@@ -26,7 +30,9 @@ import java.util.Optional;
 public class UserService {
 
     private final UserStorage userDbStorage;
+    private final FilmStorage filmDbStorage;
     private final UserMapper userMapper = new UserMapperImpl();
+    private final FilmMapper filmMapper = new FilmMapperImpl();
     private final FeedStorage feedStorage;
 
     public List<UserDto> getUsers() {
@@ -38,6 +44,10 @@ public class UserService {
     public UserDto getById(Long userId) {
         User user = getUserById(userId, String.format("Пользователь с id = %d не найден", userId));
         return userMapper.toDto(user);
+    }
+
+    public User getUserById(Long userId) {
+        return getUserById(userId, String.format("Пользователь с id = %d не найден", userId));
     }
 
     public UserDto create(NewUserRequest request) {
@@ -87,22 +97,32 @@ public class UserService {
             throw new DuplicatedDataException(message);
         }
 
-        Long eventId = userDbStorage.saveFriend(user, friend);
+        userDbStorage.saveFriend(user, friend);
         feedStorage.save(
                 new FeedDto(
                         Instant.now().toEpochMilli(),
                         user.getId(),
                         "FRIEND",
                         "ADD" ,
-                        eventId,
                         friend.getId()));
     }
 
-    //тут
     public void removeFriend(Long id, Long friendId) {
         User user = getUserById(id);
         User friend = getFriend(friendId);
         userDbStorage.removeFriend(user, friend);
+        feedStorage.save(
+                new FeedDto(
+                        Instant.now().toEpochMilli(),
+                        user.getId(),
+                        "FRIEND",
+                        "REMOVE" ,
+                        friend.getId()));
+    }
+
+    public void removeUser(Long id) {
+        User user = getUserById(id);
+        userDbStorage.removeUser(user);
     }
 
     public List<UserDto> getFriends(Long id) {
@@ -120,10 +140,6 @@ public class UserService {
                 .toList();
     }
 
-    private User getUserById(Long userId) {
-        return getUserById(userId, String.format("Пользователь с id = %d не найден", userId));
-    }
-
     private User getFriend(Long id) {
         return getUserById(id, String.format("Друг с id = %d не найден", id));
     }
@@ -131,7 +147,7 @@ public class UserService {
     private User getUserById(Long id, String errorMessage) {
         return userDbStorage.findById(id)
                 .orElseThrow(() -> {
-                    log.error("User = {} is not found", errorMessage);
+                    log.error(errorMessage);
                     return new NotFoundException(errorMessage);
                 });
     }
@@ -142,5 +158,12 @@ public class UserService {
         } else {
             target.setName(source.getName());
         }
+    }
+
+    public List<FilmDto> getRecommendations(Long userId) {
+        User user = getUserById(userId);
+        return filmDbStorage.findRecommendations(user.getId()).stream()
+                .map(filmMapper::toDto)
+                .toList();
     }
 }

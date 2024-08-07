@@ -27,6 +27,7 @@ public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
             "friends (user_id, friend_id) " +
             "VALUES (?, ?);";
     private static final String DELETE_FRIEND_QUERY = "DELETE friends WHERE USER_ID = ? AND FRIEND_ID = ?;";
+    private static final String DELETE_USER_QUERY = "DELETE FROM users WHERE id = ?;";
     private static final String FIND_FRIENDS_QUERY = """
             SELECT u.* FROM friends r
             JOIN users u ON u.ID = r.FRIEND_ID
@@ -96,6 +97,11 @@ public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
     @Override
     public boolean removeFriend(User user, User friend) {
         return delete(DELETE_FRIEND_QUERY, user.getId(), friend.getId());
+    }
+
+    @Override
+    public boolean removeUser(User user) {
+        return delete(DELETE_USER_QUERY, user.getId());
     }
 
     @Override

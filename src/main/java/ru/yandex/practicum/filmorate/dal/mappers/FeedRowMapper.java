@@ -13,10 +13,10 @@ public class FeedRowMapper implements RowMapper<Feed> {
     public Feed mapRow(ResultSet rs, int rowNum) throws SQLException {
         Feed.FeedBuilder builder = Feed.builder();
 
-        builder.id(rs.getLong("id"));
         builder.timestamp(rs.getLong("timestamp"));
         builder.userId(rs.getLong("user_id"));
         builder.eventType(rs.getString("event_type"));
+        builder.operation(rs.getString("operation"));
         builder.eventId(rs.getLong("event_id"));
         builder.entityId(rs.getLong("entity_id"));
         return builder.build();
