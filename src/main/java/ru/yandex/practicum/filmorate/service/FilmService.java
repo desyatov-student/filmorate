@@ -25,7 +25,6 @@ import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
 import java.time.LocalDate;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -133,14 +132,13 @@ public class FilmService {
             log.error(message);
             throw new DuplicatedDataException(message);
         }
-        Long eventId = filmDbStorage.like(film, user.getId());
+        filmDbStorage.like(film, user.getId());
         feedDbStorage.save(
                 new FeedDto(
                         Instant.now().toEpochMilli(),
                         userId,
                         "LIKE",
                         "ADD",
-                        eventId,
                         id));
     }
 
@@ -148,6 +146,18 @@ public class FilmService {
         UserDto user = getUserById(userId);
         Film film = getFilmById(id);
         filmDbStorage.removeLike(film, user.getId());
+        feedDbStorage.save(
+                new FeedDto(
+                        Instant.now().toEpochMilli(),
+                        userId,
+                        "LIKE",
+                        "REMOVE",
+                        id));
+    }
+
+    public void removeFilm(Long id) {
+        Film film = getFilmById(id);
+        filmDbStorage.removeFilm(film);
     }
 
     public void removeFilm(Long id) {
