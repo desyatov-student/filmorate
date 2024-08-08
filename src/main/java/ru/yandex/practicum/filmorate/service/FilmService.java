@@ -16,12 +16,12 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.SearchMode;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -115,6 +115,18 @@ public class FilmService {
 
     public List<FilmDto> getPopular(Integer count) {
         return filmDbStorage.getPopular(count).stream()
+                .map(filmMapper::toDto)
+                .toList();
+    }
+
+    public List<FilmDto> search(String query, List<SearchMode> modes) {
+        if (query.isEmpty() || query.isBlank()) {
+            return new ArrayList<>();
+        }
+
+        String title = modes.contains(SearchMode.TITLE) ? query.toLowerCase() : "VALUE_FOR_UNSELECTED_SEARCH_MODE";
+        String director = modes.contains(SearchMode.DIRECTOR) ? query.toLowerCase() : "VALUE_FOR_UNSELECTED_SEARCH_MODE";
+        return filmDbStorage.search(title, director).stream()
                 .map(filmMapper::toDto)
                 .toList();
     }

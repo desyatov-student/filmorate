@@ -78,6 +78,24 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
             """;
     private static final String DELETE_FILM_LIKES_QUERY = "DELETE film_likes WHERE film_id = ? AND user_id = ?;";
 
+    // search
+    // alternative that also works '%'||?||'%'
+    private static final String SEARCH_QUERY = """
+           SELECT f.*,
+           m.NAME AS mpa_name,
+           ARRAY_AGG(DISTINCT g.ID) AS genre_ids,
+           ARRAY_AGG(DISTINCT g.NAME) AS genre_names,
+           count(fl.ID) AS count
+           FROM FILMS f
+           LEFT JOIN film_genres fg ON fg.FILM_ID = f.id
+           LEFT JOIN film_likes fl ON fl.FILM_ID = f.id
+           LEFT JOIN genres g ON g.ID = fg.GENRE_ID
+           LEFT JOIN mpa m ON m.ID = f.MPA_ID
+           WHERE LOWER(f.name) LIKE CONCAT('%', ?, '%')
+           GROUP BY f.ID
+           ORDER BY count DESC
+           """;
+
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper);
     }
@@ -141,6 +159,11 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
     @Override
     public List<Film> getPopular(Integer count) {
         return findMany(FIND_POPULAR_QUERY, count);
+    }
+
+
+    public List<Film> search(String title, String director) {
+        return findMany(SEARCH_QUERY, title);
     }
 
     private void saveFilmGenres(Film film) {
