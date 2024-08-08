@@ -3,15 +3,20 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import ru.yandex.practicum.filmorate.dto.*;
-import ru.yandex.practicum.filmorate.exception.*;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.dto.GenreDto;
+import ru.yandex.practicum.filmorate.dto.MpaDto;
+import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
+import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
+import ru.yandex.practicum.filmorate.dto.UserDto;
+import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
+import ru.yandex.practicum.filmorate.exception.InternalServerException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
-import ru.yandex.practicum.filmorate.mappers.FilmMapper;
-import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
-
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.SearchMode;
 import ru.yandex.practicum.filmorate.model.SortOrderFilmsByDirector;
 import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
@@ -169,6 +174,18 @@ public class FilmService {
             throw new ConditionsNotMetException("Year is not exist");
         }
         return filmDbStorage.getPopular(count, genreId, year).stream()
+                .map(filmMapper::toDto)
+                .toList();
+    }
+
+    public List<FilmDto> search(String query, List<SearchMode> modes) {
+        if (query.isEmpty() || query.isBlank()) {
+            return new ArrayList<>();
+        }
+
+        String title = modes.contains(SearchMode.TITLE) ? query.toLowerCase() : "VALUE_FOR_UNSELECTED_SEARCH_MODE";
+        String director = modes.contains(SearchMode.DIRECTOR) ? query.toLowerCase() : "VALUE_FOR_UNSELECTED_SEARCH_MODE";
+        return filmDbStorage.search(title, director).stream()
                 .map(filmMapper::toDto)
                 .toList();
     }

@@ -16,7 +16,7 @@ public interface FilmStorage {
 
     Film update(Film film);
 
-    Long like(Film film, Long userId);
+    void like(Film film, Long userId);
 
     boolean hasLike(Film film, Long userId);
 
@@ -25,6 +25,8 @@ public interface FilmStorage {
     void removeFilm(Film film);
 
     List<Film> getPopular(Long count, Long genreId, Long year);
+
+    List<Film> search(String query, boolean searchTitle, boolean searchDirector);
 
     List<Film> findRecommendations(Long userId);
 
