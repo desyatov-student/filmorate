@@ -115,9 +115,9 @@ public class FilmService {
         if (genryId != null) {
             checkGenresForExisting(genryId);
         }
-        if (count < 0) {
-            log.error("Find popular films is failed. Count is negative");
-            throw new ConditionsNotMetException("Count is negative");
+        if (count != null && count < 0) {
+            log.error("Find popular films is failed. Count is negative or null");
+            throw new ConditionsNotMetException("Count is negative or null");
         }
         if (year != null && year > LocalDate.now().getYear()) {
             log.error("Find popular films is failed. Year is not exist");

@@ -27,20 +27,21 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
             GROUP BY f.ID;
             """;
     private static final String FIND_POPULAR_QUERY = """
-            SELECT f.*,
+            SELECT film.* ,
             m.NAME AS mpa_name,
             ARRAY_AGG(DISTINCT g.ID) AS genre_ids,
-            ARRAY_AGG(DISTINCT g.NAME) AS genre_names,
-            count(fl.ID) AS count
-            FROM FILMS f
-            LEFT JOIN film_genres fg ON fg.FILM_ID = f.id
-            LEFT JOIN film_likes fl ON fl.FILM_ID = f.id
+            ARRAY_AGG(DISTINCT g.NAME) AS genre_names
+            FROM (SELECT f.*, COUNT (fl.user_id) AS count_like
+            FROM films f
+            LEFT JOIN film_likes fl  ON fl.film_id = f.id
+            GROUP BY f.id
+            ) AS film
+            LEFT JOIN film_genres fg ON fg.FILM_ID = film.id
             LEFT JOIN genres g ON g.ID = fg.GENRE_ID
-            LEFT JOIN mpa m ON m.ID = f.MPA_ID
+            LEFT JOIN mpa m ON m.ID = film.MPA_ID
             %S
-            GROUP BY f.ID
-            ORDER BY count DESC
-            LIMIT ?;
+            GROUP BY film.ID
+            ORDER BY count_like DESC
                         """;
     private static final String FIND_BY_ID_QUERY = """
             SELECT f.*,
@@ -144,21 +145,22 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
         String findQuery;
         if (genreId != null && year != null) {
             findQuery = String.format(FIND_POPULAR_QUERY,
-                    "WHERE  f.ID IN (SELECT FILM_ID FROM film_genres WHERE GENRE_ID = ?) " +
-                            "AND YEAR (f.RELEASE_DATE) = ?");
-            return findMany(findQuery, genreId, year, count);
+                    "WHERE  film.ID IN (SELECT FILM_ID FROM film_genres WHERE GENRE_ID = " + genreId + ") " +
+                            "AND YEAR (film.RELEASE_DATE) = " + year);
         } else if (genreId != null) {
             findQuery = String.format(FIND_POPULAR_QUERY,
-                    "WHERE  f.ID IN (SELECT FILM_ID FROM film_genres WHERE GENRE_ID = ?)");
-            return findMany(findQuery, genreId, count);
+                    "WHERE  film.ID IN (SELECT FILM_ID FROM film_genres WHERE GENRE_ID = " + genreId + ")");
         } else if (year != null) {
             findQuery = String.format(FIND_POPULAR_QUERY,
-                    "WHERE YEAR (f.RELEASE_DATE) = ?");
-            return findMany(findQuery, year, count);
+                    "WHERE YEAR (film.RELEASE_DATE) = " + year);
         } else {
             findQuery = String.format(FIND_POPULAR_QUERY, " ");
-            return findMany(findQuery, count);
+
         }
+        if (count != null) {
+            findQuery = findQuery + "LIMIT " + count;
+        }
+        return findMany(findQuery);
     }
 
     private void saveFilmGenres(Film film) {
