@@ -3,15 +3,19 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.NewUserRequest;
 import ru.yandex.practicum.filmorate.dto.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.mappers.FilmMapper;
+import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
 import ru.yandex.practicum.filmorate.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.mappers.UserMapperImpl;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.List;
@@ -23,7 +27,9 @@ import java.util.Optional;
 public class UserService {
 
     private final UserStorage userDbStorage;
+    private final FilmStorage filmDbStorage;
     private final UserMapper userMapper = new UserMapperImpl();
+    private final FilmMapper filmMapper = new FilmMapperImpl();
 
     public List<UserDto> getUsers() {
         return userDbStorage.findAll().stream()
@@ -128,5 +134,12 @@ public class UserService {
         } else {
             target.setName(source.getName());
         }
+    }
+
+    public List<FilmDto> getRecommendations(Long userId) {
+        User user = getUserById(userId);
+        return filmDbStorage.findRecommendations(user.getId()).stream()
+                .map(filmMapper::toDto)
+                .toList();
     }
 }
