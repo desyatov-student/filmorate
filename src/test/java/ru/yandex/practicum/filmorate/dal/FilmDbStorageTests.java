@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @JdbcTest
 @AutoConfigureTestDatabase
@@ -42,7 +43,7 @@ class FilmDbStorageTests {
     public void testFindPopularFilms() {
 
         Collection<Film> films = filmStorage.getPopular(2L, null, null);
-        assertThat(films.size() == 2);
+        assertTrue(films.size() == 2);
         assertThat(films.stream().findFirst())
                 .isPresent()
                 .get()
@@ -51,7 +52,7 @@ class FilmDbStorageTests {
                 .isEqualTo(getFilm());
 
         films = filmStorage.getPopular(10L, 1L, null);
-        assertThat(films.size() == 3);
+        assertTrue(films.size() == 3);
         assertThat(films.stream().findFirst())
                 .isPresent()
                 .get()
@@ -60,7 +61,8 @@ class FilmDbStorageTests {
                 .isEqualTo(getFilm());
 
         films = filmStorage.getPopular(10L, null, 2001L);
-        assertThat(films.size() == 1);
+        System.out.println(films);
+        assertTrue(films.size() == 1);
         Film film = getFilm().toBuilder()
                 .releaseDate(LocalDate.of(2001, 11, 23))
                 .id(3L)
@@ -73,7 +75,7 @@ class FilmDbStorageTests {
                 .isEqualTo(film);
 
         films = filmStorage.getPopular(10L, 1L, 2020L);
-        assertThat(films.size() == 2);
+        assertTrue(films.size() == 2);
         assertThat(films.stream().findFirst())
                 .isPresent()
                 .get()
