@@ -77,6 +77,7 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
             VALUES (?, ?);
             """;
     private static final String DELETE_FILM_LIKES_QUERY = "DELETE film_likes WHERE film_id = ? AND user_id = ?;";
+    private static final String DELETE_FILM_QUERY = "DELETE films WHERE id = ?;";
 
     // recommendations
     private static final String FIND_RECOMMENDATIONS_QUERY = """
@@ -170,6 +171,11 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
     @Override
     public void removeLike(Film film, Long userId) {
         delete(DELETE_FILM_LIKES_QUERY, film.getId(), userId);
+    }
+
+    @Override
+    public void removeFilm(Film film) {
+        delete(DELETE_FILM_QUERY, film.getId());
     }
 
     @Override

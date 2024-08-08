@@ -113,6 +113,11 @@ public class FilmService {
         filmDbStorage.removeLike(film, user.getId());
     }
 
+    public void removeFilm(Long id) {
+        Film film = getFilmById(id);
+        filmDbStorage.removeFilm(film);
+    }
+
     public List<FilmDto> getPopular(Integer count) {
         return filmDbStorage.getPopular(count).stream()
                 .map(filmMapper::toDto)
