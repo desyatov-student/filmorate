@@ -77,6 +77,12 @@ public class UserController {
     }
 
     @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/{userId}")
+    public void removeUser(@PathVariable Long userId) {
+        userService.removeUser(userId);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{id}/friends")
     public List<UserDto> getFriends(@PathVariable Long id) {
         return userService.getFriends(id);

@@ -91,6 +91,11 @@ public class UserService {
         userDbStorage.removeFriend(user, friend);
     }
 
+    public void removeUser(Long id) {
+        User user = getUserById(id);
+        userDbStorage.removeUser(user);
+    }
+
     public List<UserDto> getFriends(Long id) {
         User user = getUserById(id);
         return userDbStorage.getFriends(user).stream()

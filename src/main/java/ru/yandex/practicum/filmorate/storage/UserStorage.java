@@ -23,6 +23,8 @@ public interface UserStorage {
 
     boolean removeFriend(User user, User friend);
 
+    boolean removeUser(User user);
+
     List<User> getFriends(User user);
 
     List<User> getCommonFriends(User user, User otherId);
