@@ -17,6 +17,7 @@ import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.model.SortOrderFilmsByDirector;
+import ru.yandex.practicum.filmorate.model.SearchMode;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
@@ -93,5 +94,13 @@ public class FilmController {
             @RequestParam(defaultValue = "year") @Pattern(regexp = "year|likes") String sortBy
     ) {
         return filmService.getDirectorFilms(directorId, SortOrderFilmsByDirector.from(sortBy));
+    }
+
+    @GetMapping("/search")
+    public List<FilmDto> search(
+          @RequestParam String query,
+          @RequestParam List<SearchMode> by
+    ) {
+        return filmService.search(query, by);
     }
 }
