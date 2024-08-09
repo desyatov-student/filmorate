@@ -244,8 +244,8 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
     }
 
     @Override
-    public void like(Film film, Long userId) {
-        insert(INSERT_FILM_LIKES_QUERY, film.getId(), userId);
+    public Long like(Film film, Long userId) {
+        return insert(INSERT_FILM_LIKES_QUERY, film.getId(), userId);
     }
 
     @Override

@@ -16,7 +16,7 @@ public interface FilmStorage {
 
     Film update(Film film);
 
-    void like(Film film, Long userId);
+    Long like(Film film, Long userId);
 
     boolean hasLike(Film film, Long userId);
 
