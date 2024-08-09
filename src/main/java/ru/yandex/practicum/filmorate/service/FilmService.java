@@ -5,26 +5,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.GenreDto;
+import ru.yandex.practicum.filmorate.dto.DirectorDto;
 import ru.yandex.practicum.filmorate.dto.MpaDto;
 import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.dto.UserDto;
-import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
-import ru.yandex.practicum.filmorate.exception.InternalServerException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.SearchMode;
+import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.model.SortOrderFilmsByDirector;
-import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -39,7 +36,6 @@ public class FilmService {
     private final DirectorStorage directorDbStorage;
     private final MpaStorage mpaDbStorage;
     private final UserService userService;
-    private final FeedStorage feedDbStorage;
     private final FilmMapper filmMapper = new FilmMapperImpl();
 
     public List<FilmDto> getFilms() {
@@ -134,26 +130,12 @@ public class FilmService {
             throw new DuplicatedDataException(message);
         }
         filmDbStorage.like(film, user.getId());
-        feedDbStorage.save(
-                new FeedDto(
-                        Instant.now().toEpochMilli(),
-                        userId,
-                        "LIKE",
-                        "ADD",
-                        id));
     }
 
     public void removeLike(Long id, Long userId) {
         UserDto user = getUserById(userId);
         Film film = getFilmById(id);
         filmDbStorage.removeLike(film, user.getId());
-        feedDbStorage.save(
-                new FeedDto(
-                        Instant.now().toEpochMilli(),
-                        userId,
-                        "LIKE",
-                        "REMOVE",
-                        id));
     }
 
     public void removeFilm(Long id) {
@@ -179,13 +161,9 @@ public class FilmService {
     }
 
     public List<FilmDto> search(String query, List<SearchMode> modes) {
-        if (query.isEmpty() || query.isBlank()) {
-            return new ArrayList<>();
-        }
-
-        String title = modes.contains(SearchMode.TITLE) ? query.toLowerCase() : "VALUE_FOR_UNSELECTED_SEARCH_MODE";
-        String director = modes.contains(SearchMode.DIRECTOR) ? query.toLowerCase() : "VALUE_FOR_UNSELECTED_SEARCH_MODE";
-        return filmDbStorage.search(title, director).stream()
+        boolean searchByTitle = modes.contains(SearchMode.TITLE);
+        boolean searchByDirector = modes.contains(SearchMode.DIRECTOR);
+        return filmDbStorage.search(query, searchByTitle, searchByDirector).stream()
                 .map(filmMapper::toDto)
                 .toList();
     }
@@ -197,7 +175,7 @@ public class FilmService {
     public List<FilmDto> getCommon(Long userId, Long friendId) {
         getUserById(userId);
         getUserById(friendId);
-        return filmDbStorage.getCommon(userId, friendId).stream()
+        return filmDbStorage.getCommon(userId,friendId).stream()
                 .map(filmMapper::toDto)
                 .toList();
     }

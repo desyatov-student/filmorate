@@ -12,7 +12,10 @@ import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.*;
+import ru.yandex.practicum.filmorate.storage.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -35,8 +38,6 @@ public class FilmServiceTests {
     private MpaStorage mpaStorage;
     @MockBean
     private UserService userService;
-    @MockBean
-    private FeedStorage feedStorage;
     @Autowired
     private FilmService filmService;
     @Autowired
