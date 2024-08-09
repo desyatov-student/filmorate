@@ -49,6 +49,11 @@ public class FilmService {
         return filmMapper.toDto(film);
     }
 
+    public Film getFilmById(Long id) {
+        return filmDbStorage.findFilmById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Фильм с id = %d не найден", id)));
+    }
+
     public FilmDto create(NewFilmRequest request) {
         validateGenres(request.getGenres());
         validateDirectors(request.getDirectors());
@@ -161,11 +166,6 @@ public class FilmService {
         return filmDbStorage.search(query, searchByTitle, searchByDirector).stream()
                 .map(filmMapper::toDto)
                 .toList();
-    }
-
-    private Film getFilmById(Long id) {
-        return filmDbStorage.findFilmById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Фильм с id = %d не найден", id)));
     }
 
     private UserDto getUserById(Long id) {

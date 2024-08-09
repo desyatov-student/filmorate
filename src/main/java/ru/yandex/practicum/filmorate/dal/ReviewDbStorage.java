@@ -82,6 +82,7 @@ public class ReviewDbStorage  extends BaseDbStorage<Review> implements ReviewSto
                 review.getFilmId()
         );
         review.setId(id);
+        review.setUseful(0);
         return review;
     }
 

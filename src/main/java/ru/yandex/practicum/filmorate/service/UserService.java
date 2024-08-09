@@ -42,6 +42,10 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
+    public User getUserById(Long userId) {
+        return getUserById(userId, String.format("Пользователь с id = %d не найден", userId));
+    }
+
     public UserDto create(NewUserRequest request) {
 
         if (request.getEmail() == null || request.getEmail().isEmpty()) {
@@ -117,10 +121,6 @@ public class UserService {
                 .toList();
     }
 
-    private User getUserById(Long userId) {
-        return getUserById(userId, String.format("Пользователь с id = %d не найден", userId));
-    }
-
     private User getFriend(Long id) {
         return getUserById(id, String.format("Друг с id = %d не найден", id));
     }
@@ -128,7 +128,7 @@ public class UserService {
     private User getUserById(Long id, String errorMessage) {
         return userDbStorage.findById(id)
                 .orElseThrow(() -> {
-                    log.error("User = {} is not found", errorMessage);
+                    log.error(errorMessage);
                     return new NotFoundException(errorMessage);
                 });
     }
