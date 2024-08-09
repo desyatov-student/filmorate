@@ -14,7 +14,7 @@ public class FeedRowMapper implements RowMapper<Feed> {
         Feed.FeedBuilder builder = Feed.builder();
 
         builder.id(rs.getLong("id"));
-        builder.timestamp(rs.getTimestamp("timestamp").toLocalDateTime());
+        builder.timestamp(rs.getLong("timestamp"));
         builder.userId(rs.getLong("user_id"));
         builder.eventType(rs.getString("event_type"));
         builder.eventId(rs.getLong("event_id"));

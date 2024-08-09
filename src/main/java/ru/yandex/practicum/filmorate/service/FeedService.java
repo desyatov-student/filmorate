@@ -15,7 +15,7 @@ public class FeedService {
     private final FeedMapper feedMapper = new FeedMapperImpl();
     private final FeedStorage feedStorage;
 
-    public List<FeedDto> getFeed(Long id) {
+    public List<FeedDto> getFeeds(Long id) {
         return feedStorage.getFeed(id).stream().map(feedMapper::toDto).toList();
     }
 }

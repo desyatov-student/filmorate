@@ -43,11 +43,12 @@ CREATE TABLE IF NOT EXISTS friends (
     friend_id BIGINT REFERENCES users (id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS feed (
+CREATE TABLE IF NOT EXISTS feeds (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    timestamp DATETIME,
+    timestamp BIGINT,
     user_id BIGINT REFERENCES users (id),
     event_type VARCHAR(10),
+    operation VARCHAR(10),
     event_id BIGINT,
     entity_id BIGINT
 )

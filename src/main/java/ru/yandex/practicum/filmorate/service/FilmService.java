@@ -3,12 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dto.FilmDto;
-import ru.yandex.practicum.filmorate.dto.GenreDto;
-import ru.yandex.practicum.filmorate.dto.MpaDto;
-import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
-import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
-import ru.yandex.practicum.filmorate.dto.UserDto;
+import ru.yandex.practicum.filmorate.dto.*;
 import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -16,10 +11,13 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -32,6 +30,7 @@ public class FilmService {
     private final GenreStorage genreDbStorage;
     private final MpaStorage mpaDbStorage;
     private final UserService userService;
+    private final FeedStorage feedDbStorage;
     private final FilmMapper filmMapper = new FilmMapperImpl();
 
     public List<FilmDto> getFilms() {
@@ -104,7 +103,15 @@ public class FilmService {
             log.error(message);
             throw new DuplicatedDataException(message);
         }
-        filmDbStorage.like(film, user.getId());
+        Long eventId = filmDbStorage.like(film, user.getId());
+        feedDbStorage.save(
+                new FeedDto(
+                        Instant.now().toEpochMilli(),
+                        userId,
+                        "LIKE",
+                        "ADD",
+                        eventId,
+                        id));
     }
 
     public void removeLike(Long id, Long userId) {

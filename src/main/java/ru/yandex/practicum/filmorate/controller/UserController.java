@@ -94,6 +94,6 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{id}/feed")
     public List<FeedDto> getFeeds(@PathVariable Long id) {
-        return feedService.getFeed(id);
+        return feedService.getFeeds(id);
     }
 }

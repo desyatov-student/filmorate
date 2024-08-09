@@ -16,7 +16,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,8 +86,16 @@ public class UserService {
             log.error(message);
             throw new DuplicatedDataException(message);
         }
+
         Long eventId = userDbStorage.saveFriend(user, friend);
-        feedStorage.save(new FeedDto(LocalDateTime.now(), user.getId(),"FRIEND", eventId, friend.getId()));
+        feedStorage.save(
+                new FeedDto(
+                        Instant.now().toEpochMilli(),
+                        user.getId(),
+                        "FRIEND",
+                        "ADD" ,
+                        eventId,
+                        friend.getId()));
     }
 
     //тут
