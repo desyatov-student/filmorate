@@ -28,4 +28,6 @@ public class UpdateFilmRequest {
     private LinkedHashSet<GenreDto> genres;
 
     private MpaDto mpa;
+
+    private LinkedHashSet<DirectorDto> directors;
 }

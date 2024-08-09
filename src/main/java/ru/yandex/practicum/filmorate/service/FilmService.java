@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.GenreDto;
+import ru.yandex.practicum.filmorate.dto.DirectorDto;
 import ru.yandex.practicum.filmorate.dto.MpaDto;
 import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
@@ -16,12 +17,14 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.model.SearchMode;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -30,6 +33,7 @@ public class FilmService {
 
     private final FilmStorage filmDbStorage;
     private final GenreStorage genreDbStorage;
+    private final DirectorStorage directorDbStorage;
     private final MpaStorage mpaDbStorage;
     private final UserService userService;
     private final FilmMapper filmMapper = new FilmMapperImpl();
@@ -47,6 +51,7 @@ public class FilmService {
 
     public FilmDto create(NewFilmRequest request) {
         validateGenres(request.getGenres());
+        validateDirectors(request.getDirectors());
         validateMpa(request.getMpa());
         Film film = filmMapper.toFilm(request);
         film = filmDbStorage.save(film);
@@ -56,6 +61,7 @@ public class FilmService {
 
     public FilmDto update(Long filmId, UpdateFilmRequest request) {
         validateGenres(request.getGenres());
+        validateDirectors(request.getDirectors());
         if (request.getMpa() != null) {
             checkMpaForExisting(request.getMpa());
         }
@@ -76,6 +82,20 @@ public class FilmService {
         for (GenreDto genre : genres) {
             if (genreDbStorage.findById(genre.getId()).isEmpty()) {
                 throw new ValidationException(String.format("Genre not found id=%s", genre.getId()));
+            }
+        }
+    }
+
+    private void validateDirectors(LinkedHashSet<DirectorDto> directors) {
+        if (directors != null && !directors.isEmpty()) {
+            checkDirectorsForExisting(directors);
+        }
+    }
+
+    private void checkDirectorsForExisting(LinkedHashSet<DirectorDto> directors) {
+        for (DirectorDto director : directors) {
+            if (directorDbStorage.findById(director.getId()).isEmpty()) {
+                throw new ValidationException(String.format("Director not found id=%s", director.getId()));
             }
         }
     }
@@ -143,5 +163,11 @@ public class FilmService {
 
     private UserDto getUserById(Long id) {
         return userService.getById(id);
+    }
+
+    public List<FilmDto> getDirectorFilms(Long directorId, String sortBy) {
+        return filmDbStorage.getDirectorFilms(directorId, sortBy).stream()
+                .map(filmMapper::toDto)
+                .toList();
     }
 }

@@ -67,7 +67,8 @@ class FilmDbStorageTests {
                     LocalDate.of(1990, 1, 1),
                     60,
                     List.of(),
-                    new Mpa(1L, "G")
+                    new Mpa(1L, "G"),
+                    List.of()
             );
 
             films.add(filmStorage.save(film));
