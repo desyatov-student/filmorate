@@ -30,7 +30,7 @@ class FilmDbStorageTests {
         genres.add(new Genre(1L, "Комедия"));
         return Film.builder()
                 .id(1L)
-                .name("testFilm")
+                .name("testFilm1")
                 .description("testDescription")
                 .releaseDate(LocalDate.of(2020, 11, 23))
                 .duration(150)
@@ -40,8 +40,7 @@ class FilmDbStorageTests {
     }
 
     @Test
-    public void testFindPopularFilms() {
-
+    public void getPopular_shouldFindPopularFilmsWithCountParam() {
         Collection<Film> films = filmStorage.getPopular(2L, null, null);
         assertTrue(films.size() == 2);
         assertThat(films.stream().findFirst())
@@ -50,8 +49,11 @@ class FilmDbStorageTests {
                 .usingRecursiveComparison()
                 .ignoringActualNullFields()
                 .isEqualTo(getFilm());
+    }
 
-        films = filmStorage.getPopular(10L, 1L, null);
+    @Test
+    public void getPopular_shouldFindPopularFilmsWithGenreIdParam() {
+        Collection<Film> films = filmStorage.getPopular(null, 1L, null);
         assertTrue(films.size() == 3);
         assertThat(films.stream().findFirst())
                 .isPresent()
@@ -59,11 +61,15 @@ class FilmDbStorageTests {
                 .usingRecursiveComparison()
                 .ignoringActualNullFields()
                 .isEqualTo(getFilm());
+    }
 
-        films = filmStorage.getPopular(10L, null, 2001L);
+    @Test
+    public void getPopular_shouldFindPopularFilmsWithYearParam() {
+        Collection<Film> films = filmStorage.getPopular(null, null, 2001L);
         System.out.println(films);
         assertTrue(films.size() == 1);
         Film film = getFilm().toBuilder()
+                .name("testFilm3")
                 .releaseDate(LocalDate.of(2001, 11, 23))
                 .id(3L)
                 .build();
@@ -73,8 +79,11 @@ class FilmDbStorageTests {
                 .usingRecursiveComparison()
                 .ignoringActualNullFields()
                 .isEqualTo(film);
+    }
 
-        films = filmStorage.getPopular(10L, 1L, 2020L);
+    @Test
+    public void getPopular_shouldFindPopularFilmsWithAllParams() {
+        Collection<Film> films = filmStorage.getPopular(10L, 1L, 2020L);
         assertTrue(films.size() == 2);
         assertThat(films.stream().findFirst())
                 .isPresent()

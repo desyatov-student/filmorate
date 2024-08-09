@@ -111,9 +111,9 @@ public class FilmService {
         filmDbStorage.removeLike(film, user.getId());
     }
 
-    public List<FilmDto> getPopular(Long count, Long genryId, Long year) {
-        if (genryId != null) {
-            checkGenresForExisting(genryId);
+    public List<FilmDto> getPopular(Long count, Long genreId, Long year) {
+        if (genreId != null) {
+            checkGenresForExisting(genreId);
         }
         if (count != null && count < 0) {
             log.error("Find popular films is failed. Count is negative or null");
@@ -123,7 +123,7 @@ public class FilmService {
             log.error("Find popular films is failed. Year is not exist");
             throw new ConditionsNotMetException("Year is not exist");
         }
-        return filmDbStorage.getPopular(count, genryId, year).stream()
+        return filmDbStorage.getPopular(count, genreId, year).stream()
                 .map(filmMapper::toDto)
                 .toList();
     }

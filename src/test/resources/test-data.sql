@@ -23,10 +23,10 @@ VALUES
 
 INSERT INTO films (name,description,release_date,duration,mpa_id)
 VALUES
-    ('testFilm','testDescription', '2020-11-23',150, 1),
-    ('testFilm','testDescription', '2020-11-23',150, 1),
-    ('testFilm','testDescription', '2001-11-23',150, 1),
-    ('testFilm','testDescription', '2020-11-23',150, 1);
+    ('testFilm1','testDescription', '2020-11-23',150, 1),
+    ('testFilm2','testDescription', '2020-11-23',150, 1),
+    ('testFilm3','testDescription', '2001-11-23',150, 1),
+    ('testFilm4','testDescription', '2020-11-23',150, 1);
 
 INSERT INTO film_genres (film_id,genre_id) VALUES
     (1,1),
