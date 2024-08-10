@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -18,8 +19,8 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
     private static final String FIND_ALL_QUERY = """
             SELECT f.*,
             m.NAME AS mpa_name,
-            ARRAY_AGG(DISTINCT g.ID) AS genre_ids,
-            ARRAY_AGG(DISTINCT g.NAME) AS genre_names
+            ARRAY_AGG(g.ID ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genre_ids,
+            ARRAY_AGG(g.NAME ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genre_names
             FROM FILMS f
             LEFT JOIN film_genres fg ON fg.FILM_ID = f.id
             LEFT JOIN genres g ON g.ID = fg.GENRE_ID
@@ -46,12 +47,16 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
     private static final String FIND_BY_ID_QUERY = """
             SELECT f.*,
             m.NAME AS mpa_name,
-            ARRAY_AGG(g.ID) AS genre_ids,
-            ARRAY_AGG(g.NAME) AS genre_names
+            ARRAY_AGG(g.ID ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genre_ids,
+            ARRAY_AGG(g.NAME ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genre_names,
+            ARRAY_AGG(d.ID ORDER BY d.ID) FILTER (WHERE d.ID IS NOT NULL) AS director_ids,
+            ARRAY_AGG(d.NAME ORDER BY d.ID) FILTER (WHERE d.ID IS NOT NULL) AS director_names
             FROM FILMS f
             LEFT JOIN film_genres fg ON fg.FILM_ID = f.id
             LEFT JOIN genres g ON g.ID = fg.GENRE_ID
             LEFT JOIN mpa m ON m.ID = f.MPA_ID
+            LEFT JOIN film_directors fd ON fd.FILM_ID = f.id
+            LEFT JOIN directors d ON d.ID = fd.DIRECTOR_ID
             WHERE f.ID = ?
             GROUP BY f.ID;
             """;
@@ -80,6 +85,47 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
             """;
     private static final String DELETE_FILM_LIKES_QUERY = "DELETE film_likes WHERE film_id = ? AND user_id = ?;";
     private static final String DELETE_FILM_QUERY = "DELETE films WHERE id = ?;";
+
+    // film_directors
+    private static final String DELETE_FILM_DIRECTORS_QUERY = "DELETE film_directors WHERE film_id = ?;";
+    private static final String INSERT_FILM_DIRECTORS_QUERY = """
+            INSERT INTO film_directors (film_id, director_id)
+            VALUES (?, ?);
+            """;
+    private static final String FIND_FILMS_BY_YEAR_BY_DIRECTOR_QUERY = """
+            SELECT f.*,
+            m.NAME AS mpa_name,
+            ARRAY_AGG(g.ID ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genre_ids,
+            ARRAY_AGG(g.NAME ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genre_names,
+            ARRAY_AGG(d.ID ORDER BY d.ID) FILTER (WHERE d.ID IS NOT NULL) AS director_ids,
+            ARRAY_AGG(d.NAME ORDER BY d.ID) FILTER (WHERE d.ID IS NOT NULL) AS director_names
+            FROM (SELECT * FROM FILMS WHERE id IN (SELECT film_id FROM film_directors WHERE director_id = ?)) f
+            LEFT JOIN film_genres fg ON fg.FILM_ID = f.id
+            LEFT JOIN genres g ON g.ID = fg.GENRE_ID
+            LEFT JOIN mpa m ON m.ID = f.MPA_ID
+            LEFT JOIN film_directors fd ON fd.DIRECTOR_ID = ? AND fd.FILM_ID = f.id
+            LEFT JOIN directors d ON d.ID = fd.DIRECTOR_ID
+            GROUP BY f.ID
+            ORDER BY f.release_date;
+            """;
+    private static final String FIND_POPULAR_BY_DIRECTOR_QUERY = """
+            SELECT f.*,
+            m.NAME AS mpa_name,
+            ARRAY_AGG(g.ID ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genre_ids,
+            ARRAY_AGG(g.NAME ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genre_names,
+            ARRAY_AGG(d.ID ORDER BY d.ID) FILTER (WHERE d.ID IS NOT NULL) AS director_ids,
+            ARRAY_AGG(d.NAME ORDER BY d.ID) FILTER (WHERE d.ID IS NOT NULL) AS director_names,
+            count(fl.ID) AS count
+            FROM (SELECT * FROM FILMS WHERE id IN (SELECT film_id FROM film_directors WHERE director_id = ?)) f
+            LEFT JOIN film_genres fg ON fg.FILM_ID = f.id
+            LEFT JOIN film_likes fl ON fl.FILM_ID = f.id
+            LEFT JOIN genres g ON g.ID = fg.GENRE_ID
+            LEFT JOIN mpa m ON m.ID = f.MPA_ID
+            LEFT JOIN film_directors fd ON fd.DIRECTOR_ID = ? AND fd.FILM_ID = f.id
+            LEFT JOIN directors d ON d.ID = fd.DIRECTOR_ID
+            GROUP BY f.ID
+            ORDER BY count DESC;
+            """;
 
     // recommendations
     private static final String FIND_RECOMMENDATIONS_QUERY = """
@@ -141,6 +187,7 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
         );
         film.setId(id);
         saveFilmGenres(film);
+        saveFilmDirectors(film);
         return film;
     }
 
@@ -156,6 +203,7 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
                 film.getId()
         );
         saveFilmGenres(film);
+        saveFilmDirectors(film);
         return film;
     }
 
@@ -208,6 +256,17 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
         return findMany(FIND_RECOMMENDATIONS_QUERY, userId);
     }
 
+    @Override
+    public List<Film> getDirectorFilms(Long directorId, String sortBy) {
+        switch (sortBy) {
+            case "likes":
+                return findMany(FIND_POPULAR_BY_DIRECTOR_QUERY, directorId, directorId);
+            case "year":
+                return findMany(FIND_FILMS_BY_YEAR_BY_DIRECTOR_QUERY, directorId, directorId);
+            default: return null;
+        }
+    }
+
     private void saveFilmGenres(Film film) {
         if (film.getGenres() == null) {
             return;
@@ -219,6 +278,20 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
         delete(DELETE_FILM_GENRES_QUERY, film.getId());
         for (Genre genre : film.getGenres()) {
             insert(INSERT_FILM_GENRES_QUERY, film.getId(), genre.getId());
+        }
+    }
+
+    private void saveFilmDirectors(Film film) {
+        if (film.getDirectors() == null) {
+            return;
+        }
+        delete(DELETE_FILM_DIRECTORS_QUERY, film.getId());
+        if (film.getDirectors().isEmpty()) {
+            return;
+        }
+
+        for (Director director : film.getDirectors()) {
+            insert(INSERT_FILM_DIRECTORS_QUERY, film.getId(), director.getId());
         }
     }
 }

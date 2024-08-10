@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -78,5 +79,13 @@ public class FilmController {
                                     @RequestParam(required = false) Long genreId,
                                     @RequestParam(required = false) Long year) {
         return filmService.getPopular(count, genreId, year);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<FilmDto> getDirectorFilms(
+            @PathVariable Long directorId,
+            @RequestParam(defaultValue = "10") @Pattern(regexp = "year|likes") String sortBy
+    ) {
+        return filmService.getDirectorFilms(directorId, sortBy);
     }
 }
