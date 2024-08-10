@@ -20,26 +20,26 @@ public class DirectorController {
 
     @GetMapping
     public List<DirectorDto> getDirectors() {
-        return null;//directorService.getUsers();
+        return directorService.getUsers();
     }
 
     @GetMapping("/{id}")
     public DirectorDto getDirectorById(@PathVariable("id") Long directorId) {
-        return null;//directorService.getById(directorId);
+        return directorService.getById(directorId);
     }
 
     @PostMapping
     public DirectorDto create(@Valid @RequestBody NewDirectorRequest newDirectorRequest) {
-        return null; //directorService.create(newDirectorRequest);
+        return directorService.create(newDirectorRequest);
     }
 
     @PutMapping
     public DirectorDto update(@Valid @RequestBody UpdateDirectorRequest updateDirectorRequest) {
-        return null; //directorService.update(updateDirectorRequest);
+        return directorService.update(updateDirectorRequest);
     }
 
     @DeleteMapping("/{id}")
     public void deleteLike(@PathVariable("id") long directorId) {
-        // directorService.remove(directorId);
+        directorService.remove(directorId);
     }
 }
