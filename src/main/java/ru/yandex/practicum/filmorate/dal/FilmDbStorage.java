@@ -49,6 +49,21 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
             GROUP BY film.ID
             ORDER BY count_like DESC
             """;
+    private static final String FIND_COMMON_QUERY = """
+            SELECT f.*,
+            m.NAME AS mpa_name,
+            ARRAY_AGG(DISTINCT g.ID) AS genre_ids,
+            ARRAY_AGG(DISTINCT g.NAME) AS genre_names,
+            count(fl.ID) AS count
+            FROM FILMS f
+            LEFT JOIN film_genres fg ON fg.FILM_ID = f.id
+            LEFT JOIN film_likes fl ON fl.FILM_ID = f.id
+            LEFT JOIN genres g ON g.ID = fg.GENRE_ID
+            LEFT JOIN mpa m ON m.ID = f.MPA_ID
+            WHERE f.id IN (SELECT FILM_ID FROM FILM_LIKES WHERE USER_ID = ?) AND fl.USER_ID = ?
+            GROUP BY f.ID
+            ORDER BY count DESC;
+            """;
     private static final String FIND_BY_ID_QUERY = """
             SELECT f.*,
             m.NAME AS mpa_name,
@@ -280,6 +295,11 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
         for (Genre genre : film.getGenres()) {
             insert(INSERT_FILM_GENRES_QUERY, film.getId(), genre.getId());
         }
+    }
+
+    @Override
+    public List<Film> getCommon(Long userId, Long friendId) {
+        return findMany(FIND_COMMON_QUERY, userId, friendId);
     }
 
     private void saveFilmDirectors(Film film) {

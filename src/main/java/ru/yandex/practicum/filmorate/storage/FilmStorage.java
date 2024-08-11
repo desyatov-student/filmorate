@@ -28,5 +28,7 @@ public interface FilmStorage {
 
     List<Film> findRecommendations(Long userId);
 
+    List<Film> getCommon(Long userId, Long friendId);
+
     List<Film> getDirectorFilms(Long directorId, SortOrderFilmsByDirector sortBy);
 }

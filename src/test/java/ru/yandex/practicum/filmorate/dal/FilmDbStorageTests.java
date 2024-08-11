@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.dal;
 
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -180,6 +181,28 @@ class FilmDbStorageTests {
                 .isEqualTo(getFilm());
     }
 
+    @Test
+    public void getCommon_shouldFindCommonFilms() {
+        Collection<Film> films = filmStorage.getCommon(1L, 2L);
+        Assertions.assertThat(films.size() == 1);
+        Assertions.assertThat(films.stream().findFirst())
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .ignoringActualNullFields()
+                .isEqualTo(getFilm());
+    }
+
+    @Test
+    public void getCommon_afterLikeCountCommonFilmsWillIncrease() {
+        Collection<Film> films = filmStorage.getCommon(1L, 2L);
+        Assertions.assertThat(films.size() == 1);
+
+        filmStorage.like(filmStorage.findFilmById(2L).get(), 1L);
+
+        films = filmStorage.getCommon(1L, 2L);
+        Assertions.assertThat(films.size() == 2);
+    }
     @Test
     public void getDirectorFilms_throwsExceptionWhenWrongSortingParameter() {
 
