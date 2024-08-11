@@ -24,12 +24,12 @@ public class FilmRowMapper implements RowMapper<Film> {
         builder.releaseDate(releaseDate);
         builder.duration(resultSet.getInt("duration"));
         try {
-            Object[] genreIds = (Object[]) resultSet.getArray("genre_ids").getArray();
-            Object[] genreNames = (Object[]) resultSet.getArray("genre_names").getArray();
-            ArrayList<Genre> arrayList = new ArrayList<>(genreNames.length);
-            for (int i = 0; i < genreIds.length; i++) {
-                Long genreId = Long.valueOf(String.valueOf(genreIds[i]));
-                String genreName = String.valueOf(genreNames[i]);
+            ResultSet resultSetGenres = resultSet.getArray("genres").getResultSet();
+            ArrayList<Genre> arrayList = new ArrayList<>();
+            while (resultSetGenres.next()) {
+                Object[] directorFields = (Object[]) resultSetGenres.getArray("Value").getArray();
+                Long genreId = Long.valueOf(String.valueOf(directorFields[0]));
+                String genreName = String.valueOf(directorFields[1]);
                 arrayList.add(new Genre(genreId, genreName));
             }
             builder.genres(arrayList);
@@ -42,13 +42,13 @@ public class FilmRowMapper implements RowMapper<Film> {
         );
         builder.mpa(map);
         try {
-            Object[] directorIds = (Object[]) resultSet.getArray("director_ids").getArray();
-            Object[] directorNames = (Object[]) resultSet.getArray("director_names").getArray();
-            ArrayList<Director> arrayList = new ArrayList<>(directorIds.length);
-            for (int i = 0; i < directorIds.length; i++) {
-                Long genreId = Long.valueOf(String.valueOf(directorIds[i]));
-                String genreName = String.valueOf(directorNames[i]);
-                arrayList.add(new Director(genreId, genreName));
+            ResultSet resultSetDirectors = resultSet.getArray("directors").getResultSet();
+            ArrayList<Director> arrayList = new ArrayList<>();
+            while (resultSetDirectors.next()) {
+                Object[] directorFields = (Object[]) resultSetDirectors.getArray("Value").getArray();
+                Long directorId = Long.valueOf(String.valueOf(directorFields[0]));
+                String directorName = String.valueOf(directorFields[1]);
+                arrayList.add(new Director(directorId, directorName));
             }
             builder.directors(arrayList);
         } catch (Exception e) {

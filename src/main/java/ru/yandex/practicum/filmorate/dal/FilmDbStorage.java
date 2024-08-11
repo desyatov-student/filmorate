@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -19,8 +20,7 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
     private static final String FIND_ALL_QUERY = """
             SELECT f.*,
             m.NAME AS mpa_name,
-            ARRAY_AGG(g.ID ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genre_ids,
-            ARRAY_AGG(g.NAME ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genre_names
+            ARRAY_AGG(DISTINCT ARRAY[CAST(g.ID AS varchar), g.NAME] ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genres
             FROM FILMS f
             LEFT JOIN film_genres fg ON fg.FILM_ID = f.id
             LEFT JOIN genres g ON g.ID = fg.GENRE_ID
@@ -47,10 +47,8 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
     private static final String FIND_BY_ID_QUERY = """
             SELECT f.*,
             m.NAME AS mpa_name,
-            ARRAY_AGG(g.ID ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genre_ids,
-            ARRAY_AGG(g.NAME ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genre_names,
-            ARRAY_AGG(d.ID ORDER BY d.ID) FILTER (WHERE d.ID IS NOT NULL) AS director_ids,
-            ARRAY_AGG(d.NAME ORDER BY d.ID) FILTER (WHERE d.ID IS NOT NULL) AS director_names
+            ARRAY_AGG(DISTINCT ARRAY[CAST(g.ID AS varchar), g.NAME] ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genres,
+            ARRAY_AGG(DISTINCT ARRAY[CAST(d.ID AS varchar), d.NAME] ORDER BY d.ID) FILTER (WHERE d.ID IS NOT NULL) AS directors
             FROM FILMS f
             LEFT JOIN film_genres fg ON fg.FILM_ID = f.id
             LEFT JOIN genres g ON g.ID = fg.GENRE_ID
@@ -95,10 +93,8 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
     private static final String FIND_FILMS_BY_YEAR_BY_DIRECTOR_QUERY = """
             SELECT f.*,
             m.NAME AS mpa_name,
-            ARRAY_AGG(g.ID ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genre_ids,
-            ARRAY_AGG(g.NAME ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genre_names,
-            ARRAY_AGG(d.ID ORDER BY d.ID) FILTER (WHERE d.ID IS NOT NULL) AS director_ids,
-            ARRAY_AGG(d.NAME ORDER BY d.ID) FILTER (WHERE d.ID IS NOT NULL) AS director_names
+            ARRAY_AGG(DISTINCT ARRAY[CAST(g.ID AS varchar), g.NAME] ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genres,
+            ARRAY_AGG(DISTINCT ARRAY[CAST(d.ID AS varchar), d.NAME] ORDER BY d.ID) FILTER (WHERE d.ID IS NOT NULL) AS directors
             FROM (SELECT * FROM FILMS WHERE id IN (SELECT film_id FROM film_directors WHERE director_id = ?)) f
             LEFT JOIN film_genres fg ON fg.FILM_ID = f.id
             LEFT JOIN genres g ON g.ID = fg.GENRE_ID
@@ -111,10 +107,8 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
     private static final String FIND_POPULAR_BY_DIRECTOR_QUERY = """
             SELECT f.*,
             m.NAME AS mpa_name,
-            ARRAY_AGG(g.ID ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genre_ids,
-            ARRAY_AGG(g.NAME ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genre_names,
-            ARRAY_AGG(d.ID ORDER BY d.ID) FILTER (WHERE d.ID IS NOT NULL) AS director_ids,
-            ARRAY_AGG(d.NAME ORDER BY d.ID) FILTER (WHERE d.ID IS NOT NULL) AS director_names,
+            ARRAY_AGG(DISTINCT ARRAY[CAST(g.ID AS varchar), g.NAME] ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genres,
+            ARRAY_AGG(DISTINCT ARRAY[CAST(d.ID AS varchar), d.NAME] ORDER BY d.ID) FILTER (WHERE d.ID IS NOT NULL) AS directors,
             count(fl.ID) AS count
             FROM (SELECT * FROM FILMS WHERE id IN (SELECT film_id FROM film_directors WHERE director_id = ?)) f
             LEFT JOIN film_genres fg ON fg.FILM_ID = f.id
@@ -151,8 +145,7 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
             )
             SELECT f.*,
             m.NAME AS mpa_name,
-            ARRAY_AGG(DISTINCT g.ID) AS genre_ids,
-            ARRAY_AGG(DISTINCT g.NAME) AS genre_names
+            ARRAY_AGG(DISTINCT ARRAY[CAST(g.ID AS varchar), g.NAME] ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genres
             FROM recommends_films_ids rfi
             JOIN films f ON rfi.FILM_ID = f.id
             LEFT JOIN film_genres fg ON fg.FILM_ID = f.id
@@ -263,7 +256,7 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
                 return findMany(FIND_POPULAR_BY_DIRECTOR_QUERY, directorId, directorId);
             case "year":
                 return findMany(FIND_FILMS_BY_YEAR_BY_DIRECTOR_QUERY, directorId, directorId);
-            default: return null;
+            default: throw new ValidationException("Director's films might be sorted only by \"likes\" or \"year\"");
         }
     }
 
