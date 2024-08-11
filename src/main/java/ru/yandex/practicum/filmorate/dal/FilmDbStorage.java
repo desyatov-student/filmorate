@@ -4,10 +4,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.SortOrderFilmsByDirector;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.List;
@@ -258,13 +258,13 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
     }
 
     @Override
-    public List<Film> getDirectorFilms(Long directorId, String sortBy) {
+    public List<Film> getDirectorFilms(Long directorId, SortOrderFilmsByDirector sortBy) {
         switch (sortBy) {
-            case "likes":
+            case LIKES:
                 return findMany(FIND_POPULAR_BY_DIRECTOR_QUERY, directorId, directorId);
-            case "year":
+            case YEAR:
                 return findMany(FIND_FILMS_BY_YEAR_BY_DIRECTOR_QUERY, directorId, directorId);
-            default: throw new ValidationException("Director's films might be sorted only by \"likes\" or \"year\"");
+            default: return null;
         }
     }
 

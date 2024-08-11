@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.SortOrderFilmsByDirector;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
@@ -161,7 +162,7 @@ public class FilmService {
         return userService.getById(id);
     }
 
-    public List<FilmDto> getDirectorFilms(Long directorId, String sortBy) {
+    public List<FilmDto> getDirectorFilms(Long directorId, SortOrderFilmsByDirector sortBy) {
         if (directorDbStorage.findById(directorId).isEmpty()) {
                 throw new NotFoundException(String.format("Director with id = %d not found", directorId));
         }

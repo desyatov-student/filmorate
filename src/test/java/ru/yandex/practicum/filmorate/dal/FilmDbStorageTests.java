@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.ComponentScan;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.*;
 
 import java.time.LocalDate;
@@ -186,13 +185,12 @@ class FilmDbStorageTests {
 
         // When
         Throwable thrown = catchThrowable(() -> {
-            filmStorage.getDirectorFilms(1L, "test");
+            filmStorage.getDirectorFilms(1L, null);
         });
 
         // Then
         assertThat(thrown)
-                .isInstanceOf(ValidationException.class)
-                .hasMessageContaining("might be sorted only by");
+                .isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -202,7 +200,7 @@ class FilmDbStorageTests {
         // test-data.sql
 
         // When
-        List<Film> directorFilms = filmStorage.getDirectorFilms(5L, "year");
+        List<Film> directorFilms = filmStorage.getDirectorFilms(5L, SortOrderFilmsByDirector.YEAR);
 
         // Then
         assertThat(directorFilms)
@@ -216,7 +214,7 @@ class FilmDbStorageTests {
         // test-data.sql
 
         // When
-        List<Film> directorFilms = filmStorage.getDirectorFilms(1L, "year");
+        List<Film> directorFilms = filmStorage.getDirectorFilms(1L, SortOrderFilmsByDirector.YEAR);
 
         // Then
         assertThat(directorFilms)
@@ -232,7 +230,7 @@ class FilmDbStorageTests {
         // test-data.sql
 
         // When
-        List<Film> directorFilms = filmStorage.getDirectorFilms(1L, "likes");
+        List<Film> directorFilms = filmStorage.getDirectorFilms(1L, SortOrderFilmsByDirector.LIKES);
 
         // Then
         assertThat(directorFilms)
