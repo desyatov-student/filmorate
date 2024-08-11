@@ -119,8 +119,8 @@ public class ReviewDbStorage  extends BaseDbStorage<Review> implements ReviewSto
     }
 
     @Override
-    public boolean removeRate(Review review, Long userId) {
-        return delete(DELETE_REVIEW_RATE_QUERY, review.getId(), userId);
+    public void removeRate(Review review, Long userId) {
+        delete(DELETE_REVIEW_RATE_QUERY, review.getId(), userId);
     }
 
     private ReviewRate createReviewRate(Review review, Long userId, boolean isLike) {
