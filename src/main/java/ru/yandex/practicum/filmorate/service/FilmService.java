@@ -24,6 +24,7 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
