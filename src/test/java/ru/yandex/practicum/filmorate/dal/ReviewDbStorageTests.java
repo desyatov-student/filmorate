@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dal;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -66,6 +67,7 @@ public class ReviewDbStorageTests {
     }
 
     @Test
+    @DisplayName("testLikeReview Вернет отсортированные по полезности когда 2-е ревью лайкнули 3 раза и 1-е ревью лайкнули 1 раз")
     public void testLikeReview_returnReviewsOrderedByUseful_Review2Like3TimesAndDislike1TimeAndReview1Like1Time() {
 
         // Given
