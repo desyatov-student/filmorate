@@ -8,13 +8,16 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.ComponentScan;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @JdbcTest
@@ -108,4 +111,75 @@ class FilmDbStorageTests {
 
         return new DataForRecommendations(users, films);
     }
+
+
+
+    static Film getFilm() {
+        ArrayList<Genre> genres = new ArrayList<>();
+        genres.add(new Genre(1L, "Комедия"));
+        return Film.builder()
+                .id(1L)
+                .name("testFilm1")
+                .description("testDescription")
+                .releaseDate(LocalDate.of(2020, 11, 23))
+                .duration(150)
+                .mpa(new Mpa(1L, "G"))
+                .genres(genres)
+                .build();
+    }
+
+    @Test
+    public void getPopular_shouldFindPopularFilmsWithCountParam() {
+        Collection<Film> films = filmStorage.getPopular(2L, null, null);
+        assertTrue(films.size() == 2);
+        assertThat(films.stream().findFirst())
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .ignoringActualNullFields()
+                .isEqualTo(getFilm());
+    }
+
+    @Test
+    public void getPopular_shouldFindPopularFilmsWithGenreIdParam() {
+        Collection<Film> films = filmStorage.getPopular(null, 1L, null);
+        assertTrue(films.size() == 3);
+        assertThat(films.stream().findFirst())
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .ignoringActualNullFields()
+                .isEqualTo(getFilm());
+    }
+
+    @Test
+    public void getPopular_shouldFindPopularFilmsWithYearParam() {
+        Collection<Film> films = filmStorage.getPopular(null, null, 2001L);
+        System.out.println(films);
+        assertTrue(films.size() == 1);
+        Film film = getFilm().toBuilder()
+                .name("testFilm3")
+                .releaseDate(LocalDate.of(2001, 11, 23))
+                .id(3L)
+                .build();
+        assertThat(films.stream().findFirst())
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .ignoringActualNullFields()
+                .isEqualTo(film);
+    }
+
+    @Test
+    public void getPopular_shouldFindPopularFilmsWithAllParams() {
+        Collection<Film> films = filmStorage.getPopular(10L, 1L, 2020L);
+        assertTrue(films.size() == 2);
+        assertThat(films.stream().findFirst())
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .ignoringActualNullFields()
+                .isEqualTo(getFilm());
+    }
+
 }
