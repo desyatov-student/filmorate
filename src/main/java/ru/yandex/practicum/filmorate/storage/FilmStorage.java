@@ -23,7 +23,7 @@ public interface FilmStorage {
 
     void removeFilm(Film film);
 
-    List<Film> getPopular(Integer count);
+    List<Film> getPopular(Long count, Long genreId, Long year);
 
     List<Film> search(String title, String director);
 
