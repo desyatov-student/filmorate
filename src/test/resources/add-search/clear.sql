@@ -1,0 +1,1 @@
+DROP TABLE film_directors, film_genres, film_likes, directors, users, films CASCADE;
