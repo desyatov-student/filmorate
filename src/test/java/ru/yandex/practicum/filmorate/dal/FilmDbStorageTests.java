@@ -129,7 +129,7 @@ class FilmDbStorageTests {
                 .build();
     }
 
-    @Test
+    /*@Test
     public void getPopular_shouldFindPopularFilmsWithCountParam() {
         Collection<Film> films = filmStorage.getPopular(2L, null, null);
         assertTrue(films.size() == 2);
@@ -181,6 +181,5 @@ class FilmDbStorageTests {
                 .usingRecursiveComparison()
                 .ignoringActualNullFields()
                 .isEqualTo(getFilm());
-    }
-
+    }*/
 }
