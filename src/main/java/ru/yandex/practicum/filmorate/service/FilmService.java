@@ -162,6 +162,9 @@ public class FilmService {
     }
 
     public List<FilmDto> getDirectorFilms(Long directorId, String sortBy) {
+        if (directorDbStorage.findById(directorId).isEmpty()) {
+                throw new NotFoundException(String.format("Director with id = %d not found", directorId));
+        }
         return filmDbStorage.getDirectorFilms(directorId, sortBy).stream()
                 .map(filmMapper::toDto)
                 .toList();

@@ -31,7 +31,9 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
             SELECT film.* ,
             m.NAME AS mpa_name,
             ARRAY_AGG(DISTINCT g.ID) AS genre_ids,
-            ARRAY_AGG(DISTINCT g.NAME) AS genre_names
+            ARRAY_AGG(DISTINCT g.NAME) AS genre_names,
+            ARRAY_AGG(DISTINCT ARRAY[CAST(g.ID AS varchar), g.NAME] ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genres,
+            ARRAY_AGG(DISTINCT ARRAY[CAST(d.ID AS varchar), d.NAME] ORDER BY d.ID) FILTER (WHERE d.ID IS NOT NULL) AS directors
             FROM (SELECT f.*, COUNT (fl.user_id) AS count_like
             FROM films f
             LEFT JOIN film_likes fl  ON fl.film_id = f.id
@@ -40,10 +42,12 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
             LEFT JOIN film_genres fg ON fg.FILM_ID = film.id
             LEFT JOIN genres g ON g.ID = fg.GENRE_ID
             LEFT JOIN mpa m ON m.ID = film.MPA_ID
+            LEFT JOIN film_directors fd ON fd.FILM_ID = film.id
+            LEFT JOIN directors d ON d.ID = fd.DIRECTOR_ID
             %S
             GROUP BY film.ID
             ORDER BY count_like DESC
-                        """;
+            """;
     private static final String FIND_BY_ID_QUERY = """
             SELECT f.*,
             m.NAME AS mpa_name,
