@@ -27,5 +27,5 @@ public interface ReviewStorage {
 
     ReviewRate createDislike(Review review, Long userId);
 
-    boolean removeRate(Review review, Long userId);
+    void removeRate(Review review, Long userId);
 }
