@@ -184,7 +184,6 @@ class FilmDbStorageTests {
 
     @Test
     public void getCommon_shouldFindCommonFilms() {
-
         Collection<Film> films = filmStorage.getCommon(1L, 2L);
         Assertions.assertThat(films.size() == 1);
         Assertions.assertThat(films.stream().findFirst())
@@ -193,10 +192,16 @@ class FilmDbStorageTests {
                 .usingRecursiveComparison()
                 .ignoringActualNullFields()
                 .isEqualTo(getFilm());
+    }
+
+    @Test
+    public void getCommon_afterLikeCountCommonFilmsWillIncrease() {
+        Collection<Film> films = filmStorage.getCommon(1L, 2L);
+        Assertions.assertThat(films.size() == 1);
 
         filmStorage.like(filmStorage.findFilmById(2L).get(), 1L);
+
         films = filmStorage.getCommon(1L, 2L);
         Assertions.assertThat(films.size() == 2);
-
     }
 }

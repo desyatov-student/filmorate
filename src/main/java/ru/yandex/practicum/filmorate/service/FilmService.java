@@ -143,6 +143,8 @@ public class FilmService {
     }
 
     public List<FilmDto> getCommon(Long userId, Long friendId) {
+        getUserById(userId);
+        getUserById(friendId);
         return filmDbStorage.getCommon(userId,friendId).stream()
                 .map(filmMapper::toDto)
                 .toList();
