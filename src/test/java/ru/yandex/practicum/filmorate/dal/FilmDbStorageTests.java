@@ -203,6 +203,7 @@ class FilmDbStorageTests {
         films = filmStorage.getCommon(1L, 2L);
         Assertions.assertThat(films.size() == 2);
     }
+
     @Test
     public void getDirectorFilms_throwsExceptionWhenWrongSortingParameter() {
 

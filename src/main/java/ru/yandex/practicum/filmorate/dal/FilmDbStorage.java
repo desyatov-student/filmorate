@@ -52,14 +52,16 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
     private static final String FIND_COMMON_QUERY = """
             SELECT f.*,
             m.NAME AS mpa_name,
-            ARRAY_AGG(DISTINCT g.ID) AS genre_ids,
-            ARRAY_AGG(DISTINCT g.NAME) AS genre_names,
+            ARRAY_AGG(DISTINCT ARRAY[CAST(g.ID AS varchar), g.NAME] ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genres,
+            ARRAY_AGG(DISTINCT ARRAY[CAST(d.ID AS varchar), d.NAME] ORDER BY d.ID) FILTER (WHERE d.ID IS NOT NULL) AS directors,
             count(fl.ID) AS count
             FROM FILMS f
             LEFT JOIN film_genres fg ON fg.FILM_ID = f.id
             LEFT JOIN film_likes fl ON fl.FILM_ID = f.id
             LEFT JOIN genres g ON g.ID = fg.GENRE_ID
             LEFT JOIN mpa m ON m.ID = f.MPA_ID
+            LEFT JOIN film_directors fd ON fd.FILM_ID = f.id
+            LEFT JOIN directors d ON d.ID = fd.DIRECTOR_ID
             WHERE f.id IN (SELECT FILM_ID FROM FILM_LIKES WHERE USER_ID = ?) AND fl.USER_ID = ?
             GROUP BY f.ID
             ORDER BY count DESC;
