@@ -21,7 +21,11 @@ public interface FilmStorage {
 
     void removeLike(Film film, Long userId);
 
+    void removeFilm(Film film);
+
     List<Film> getPopular(Integer count);
 
     List<Film> search(String title, String director);
+
+    List<Film> findRecommendations(Long userId);
 }
