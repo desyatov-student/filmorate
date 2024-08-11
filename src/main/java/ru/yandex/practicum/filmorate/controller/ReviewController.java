@@ -43,7 +43,7 @@ public class ReviewController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{id}")
-    public ReviewDto getGenreById(@PathVariable Long id) {
+    public ReviewDto getById(@PathVariable Long id) {
         return reviewService.getById(id);
     }
 

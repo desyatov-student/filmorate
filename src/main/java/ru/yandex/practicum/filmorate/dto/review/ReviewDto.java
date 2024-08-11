@@ -9,11 +9,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReviewDto {
-    @JsonProperty("reviewId")
     private Long id;
     private String content;
     private Boolean isPositive;
     private Long userId;
     private Long filmId;
     private Integer useful;
+
+    @JsonProperty("reviewId")
+    Long reviewId() {
+        return id;
+    }
 }
