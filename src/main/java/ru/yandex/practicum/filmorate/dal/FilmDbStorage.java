@@ -285,11 +285,6 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
         }
     }
 
-    @Override
-    public List<Film> findRecommendations(Long userId) {
-        return findMany(FIND_RECOMMENDATIONS_QUERY, userId);
-    }
-
     private void saveFilmGenres(Film film) {
         if (film.getGenres() == null) {
             return;
