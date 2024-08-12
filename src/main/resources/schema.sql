@@ -70,5 +70,5 @@ CREATE TABLE IF NOT EXISTS review_rates (
     user_id BIGINT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     is_like BOOLEAN NOT NULL
 );
-ALTER TABLE review_rates
-  ADD CONSTRAINT uq_review_rates UNIQUE(review_id, user_id);
+ALTER TABLE review_rates DROP CONSTRAINT IF EXISTS uq_review_rates;
+ALTER TABLE review_rates ADD CONSTRAINT uq_review_rates UNIQUE(review_id, user_id);
