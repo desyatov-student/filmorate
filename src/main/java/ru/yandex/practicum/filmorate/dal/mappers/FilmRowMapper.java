@@ -27,9 +27,9 @@ public class FilmRowMapper implements RowMapper<Film> {
             ResultSet resultSetGenres = resultSet.getArray("genres").getResultSet();
             ArrayList<Genre> arrayList = new ArrayList<>();
             while (resultSetGenres.next()) {
-                Object[] directorFields = (Object[]) resultSetGenres.getArray("Value").getArray();
-                Long genreId = Long.valueOf(String.valueOf(directorFields[0]));
-                String genreName = String.valueOf(directorFields[1]);
+                Object[] genreFields = (Object[]) resultSetGenres.getArray("Value").getArray();
+                Long genreId = Long.valueOf(String.valueOf(genreFields[0]));
+                String genreName = String.valueOf(genreFields[1]);
                 arrayList.add(new Genre(genreId, genreName));
             }
             builder.genres(arrayList);

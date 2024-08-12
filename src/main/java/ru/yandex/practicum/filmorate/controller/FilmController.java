@@ -17,6 +17,7 @@ import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.model.SearchMode;
+import ru.yandex.practicum.filmorate.model.SortOrderFilmsByDirector;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
@@ -82,19 +83,24 @@ public class FilmController {
         return filmService.getPopular(count, genreId, year);
     }
 
+    @GetMapping("/common")
+    public List<FilmDto> getCommon(@RequestParam Long userId, @RequestParam Long friendId) {
+        return filmService.getCommon(userId, friendId);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<FilmDto> getDirectorFilms(
+            @PathVariable Long directorId,
+            @RequestParam(defaultValue = "year") @Pattern(regexp = "year|likes") String sortBy
+    ) {
+        return filmService.getDirectorFilms(directorId, SortOrderFilmsByDirector.from(sortBy));
+    }
+
     @GetMapping("/search")
     public List<FilmDto> search(
           @RequestParam String query,
           @RequestParam List<SearchMode> by
     ) {
         return filmService.search(query, by);
-    }
-
-    @GetMapping("/director/{directorId}")
-    public List<FilmDto> getDirectorFilms(
-            @PathVariable Long directorId,
-            @RequestParam(defaultValue = "10") @Pattern(regexp = "year|likes") String sortBy
-    ) {
-        return filmService.getDirectorFilms(directorId, sortBy);
     }
 }
