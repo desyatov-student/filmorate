@@ -126,11 +126,6 @@ public class UserService {
         userDbStorage.removeUser(user);
     }
 
-    public void removeUser(Long id) {
-        User user = getUserById(id);
-        userDbStorage.removeUser(user);
-    }
-
     public List<UserDto> getFriends(Long id) {
         User user = getUserById(id);
         return userDbStorage.getFriends(user).stream()
