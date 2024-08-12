@@ -44,8 +44,8 @@ CREATE TABLE IF NOT EXISTS friends (
 );
 
 CREATE TABLE IF NOT EXISTS directors (
-     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-     name VARCHAR NOT NULL
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name VARCHAR NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS film_directors (
@@ -75,10 +75,10 @@ ALTER TABLE review_rates DROP CONSTRAINT IF EXISTS uq_review_rates;
 ALTER TABLE review_rates ADD CONSTRAINT uq_review_rates UNIQUE(review_id, user_id);
 
 CREATE TABLE IF NOT EXISTS feeds (
-                                     event_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                                     timestamp TIMESTAMP,
-                                     user_id BIGINT REFERENCES users (id) ON DELETE CASCADE,
-                                     event_type VARCHAR(10),
-                                     operation VARCHAR(10),
-                                     entity_id BIGINT
+     event_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+     timestamp TIMESTAMP,
+     user_id BIGINT REFERENCES users (id) ON DELETE CASCADE,
+     event_type VARCHAR(10),
+     operation VARCHAR(10),
+     entity_id BIGINT
 );
