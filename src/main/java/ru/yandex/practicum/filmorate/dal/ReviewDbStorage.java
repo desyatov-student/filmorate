@@ -41,16 +41,6 @@ public class ReviewDbStorage  extends BaseDbStorage<Review> implements ReviewSto
             """;
     private static final String DELETE_REVIEW_QUERY = "DELETE reviews WHERE id = ?;";
 
-    // ReviewRate
-    private static final String FIND_REVIEW_RATE_QUERY = """
-            SELECT * FROM review_rates WHERE review_id = ? AND user_id = ?;
-            """;
-    private static final String INSERT_REVIEW_RATE_QUERY = """
-            INSERT INTO review_rates (review_id, user_id, is_like)
-            VALUES (?, ?, ?);
-            """;
-    private static final String DELETE_REVIEW_RATE_QUERY = "DELETE review_rates WHERE review_id = ? AND user_id = ?;";
-
     public ReviewDbStorage(JdbcTemplate jdbc, RowMapper<Review> mapper) {
         super(jdbc, mapper);
     }
