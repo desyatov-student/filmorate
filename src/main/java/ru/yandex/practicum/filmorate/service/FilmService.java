@@ -160,11 +160,6 @@ public class FilmService {
         filmDbStorage.removeFilm(film);
     }
 
-    public void removeFilm(Long id) {
-        Film film = getFilmById(id);
-        filmDbStorage.removeFilm(film);
-    }
-
     public List<FilmDto> getPopular(Long count, Long genreId, Long year) {
         if (genreId != null) {
             checkGenresForExisting(genreId);
