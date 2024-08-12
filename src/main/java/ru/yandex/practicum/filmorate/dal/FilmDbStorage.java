@@ -286,26 +286,24 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
         String searchQuery = BASE_FOR_SEARCH_QUERY;
         if (searchByTitle && searchByDirector) {
             searchQuery += """
-                    WHERE LOWER(f.name) LIKE CONCAT('%', ?, '%') OR LOWER(d.name) LIKE CONCAT('%', ?, '%')
+                    WHERE LOWER(f.name) LIKE CONCAT('%s', '%s', '%s') OR LOWER(d.name) LIKE CONCAT('%s', '%s', '%s')
                     GROUP BY f.ID
                     ORDER BY count DESC;
-                    """;
-            return findMany(searchQuery, query.toLowerCase(), query.toLowerCase());
+                    """.formatted("%", query.toLowerCase(), "%", "%", query.toLowerCase(), "%");
         } else if (searchByTitle) {
             searchQuery += """
-                    WHERE LOWER(f.name) LIKE CONCAT('%', ?, '%')
+                    WHERE LOWER(f.name) LIKE CONCAT('%s', '%s', '%s')
                     GROUP BY f.ID
                     ORDER BY count DESC;
-                    """;
-            return findMany(searchQuery, query.toLowerCase());
+                    """.formatted("%", query.toLowerCase(), "%");
         } else {
             searchQuery += """
-                    WHERE LOWER(d.name) LIKE CONCAT('%', ?, '%')
+                    WHERE LOWER(d.name) LIKE CONCAT('%s', '%s', '%s')
                     GROUP BY f.ID
                     ORDER BY count DESC;
-                    """;
-            return findMany(searchQuery, query.toLowerCase());
+                    """.formatted("%", query.toLowerCase(), "%");
         }
+        return findMany(searchQuery);
     }
 
     private void saveFilmGenres(Film film) {
