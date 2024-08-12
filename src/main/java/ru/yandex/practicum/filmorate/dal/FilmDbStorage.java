@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,7 +44,7 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
             %S
             GROUP BY film.ID
             ORDER BY count_like DESC
-                        """;
+            """;
     private static final String FIND_BY_ID_QUERY = """
             SELECT f.*,
             m.NAME AS mpa_name,
@@ -155,24 +156,20 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
             """;
 
     // search
-    // alternative that also works '%'||?||'%'
-    private static final String SEARCH_QUERY = """
-           SELECT f.*,
-           m.NAME AS mpa_name,
-           ARRAY_AGG(DISTINCT ARRAY[CAST(g.ID AS varchar), g.NAME] ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genres,
-           ARRAY_AGG(DISTINCT ARRAY[CAST(d.ID AS varchar), d.NAME] ORDER BY d.ID) FILTER (WHERE d.ID IS NOT NULL) AS directors,
-           count(fl.ID) AS count
-           FROM FILMS f
-           LEFT JOIN film_genres fg ON fg.FILM_ID = f.id
-           LEFT JOIN film_likes fl ON fl.FILM_ID = f.id
-           LEFT JOIN genres g ON g.ID = fg.GENRE_ID
-           LEFT JOIN mpa m ON m.ID = f.MPA_ID
-           LEFT JOIN film_directors fd ON fd.FILM_ID = f.id
-           LEFT JOIN directors d ON d.ID = fd.DIRECTOR_ID
-           WHERE LOWER(f.name) LIKE CONCAT('%', ?, '%') OR LOWER(d.name) LIKE CONCAT('%', ?, '%')
-           GROUP BY f.ID
-           ORDER BY count DESC
-           """;
+    private static final String BASE_FOR_SEARCH_QUERY = """
+            SELECT f.*,
+            m.NAME AS mpa_name,
+            ARRAY_AGG(DISTINCT ARRAY[CAST(g.ID AS varchar), g.NAME] ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genres,
+            ARRAY_AGG(DISTINCT ARRAY[CAST(d.ID AS varchar), d.NAME] ORDER BY d.ID) FILTER (WHERE d.ID IS NOT NULL) AS directors,
+            count(fl.ID) AS count
+            FROM FILMS f
+            LEFT JOIN film_genres fg ON fg.FILM_ID = f.id
+            LEFT JOIN film_likes fl ON fl.FILM_ID = f.id
+            LEFT JOIN genres g ON g.ID = fg.GENRE_ID
+            LEFT JOIN mpa m ON m.ID = f.MPA_ID
+            LEFT JOIN film_directors fd ON fd.FILM_ID = f.id
+            LEFT JOIN directors d ON d.ID = fd.DIRECTOR_ID
+            """;
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper);
@@ -276,13 +273,40 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
                 return findMany(FIND_POPULAR_BY_DIRECTOR_QUERY, directorId, directorId);
             case "year":
                 return findMany(FIND_FILMS_BY_YEAR_BY_DIRECTOR_QUERY, directorId, directorId);
-            default: throw new ValidationException("Director's films might be sorted only by \"likes\" or \"year\"");
+            default:
+                throw new ValidationException("Director's films might be sorted only by \"likes\" or \"year\"");
         }
     }
 
 
-    public List<Film> search(String title, String director) {
-        return findMany(SEARCH_QUERY, title, director);
+    public List<Film> search(String query, boolean searchByTitle, boolean searchByDirector) {
+        if (query.isEmpty() || query.isBlank()) {
+            return new ArrayList<>();
+        }
+
+        String searchQuery = BASE_FOR_SEARCH_QUERY;
+        if (searchByTitle && searchByDirector) {
+            searchQuery += """
+                    WHERE LOWER(f.name) LIKE CONCAT('%', ?, '%') OR LOWER(d.name) LIKE CONCAT('%', ?, '%')
+                    GROUP BY f.ID
+                    ORDER BY count DESC;
+                    """;
+            return findMany(searchQuery, query.toLowerCase(), query.toLowerCase());
+        } else if (searchByTitle) {
+            searchQuery += """
+                    WHERE LOWER(f.name) LIKE CONCAT('%', ?, '%')
+                    GROUP BY f.ID
+                    ORDER BY count DESC;
+                    """;
+            return findMany(searchQuery, query.toLowerCase());
+        } else {
+            searchQuery += """
+                    WHERE LOWER(d.name) LIKE CONCAT('%', ?, '%')
+                    GROUP BY f.ID
+                    ORDER BY count DESC;
+                    """;
+            return findMany(searchQuery, query.toLowerCase());
+        }
     }
 
     private void saveFilmGenres(Film film) {

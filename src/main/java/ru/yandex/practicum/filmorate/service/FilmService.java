@@ -157,13 +157,9 @@ public class FilmService {
     }
 
     public List<FilmDto> search(String query, List<SearchMode> modes) {
-        if (query.isEmpty() || query.isBlank()) {
-            return new ArrayList<>();
-        }
-
-        String title = modes.contains(SearchMode.TITLE) ? query.toLowerCase() : "VALUE_FOR_UNSELECTED_SEARCH_MODE";
-        String director = modes.contains(SearchMode.DIRECTOR) ? query.toLowerCase() : "VALUE_FOR_UNSELECTED_SEARCH_MODE";
-        return filmDbStorage.search(title, director).stream()
+        boolean searchByTitle = modes.contains(SearchMode.TITLE);
+        boolean searchByDirector = modes.contains(SearchMode.DIRECTOR);
+        return filmDbStorage.search(query, searchByTitle, searchByDirector).stream()
                 .map(filmMapper::toDto)
                 .toList();
     }
