@@ -31,8 +31,7 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
     private static final String FIND_POPULAR_QUERY = """
             SELECT film.* ,
             m.NAME AS mpa_name,
-            ARRAY_AGG(DISTINCT g.ID) AS genre_ids,
-            ARRAY_AGG(DISTINCT g.NAME) AS genre_names
+            ARRAY_AGG(DISTINCT ARRAY[CAST(g.ID AS varchar), g.NAME] ORDER BY g.ID) FILTER (WHERE g.ID IS NOT NULL) AS genres
             FROM (SELECT f.*, COUNT (fl.user_id) AS count_like
             FROM films f
             LEFT JOIN film_likes fl  ON fl.film_id = f.id

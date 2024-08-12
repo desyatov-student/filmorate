@@ -14,9 +14,11 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @JdbcTest
 @AutoConfigureTestDatabase
@@ -124,12 +126,14 @@ class FilmDbStorageTests {
                 .duration(150)
                 .mpa(new Mpa(1L, "G"))
                 .genres(genres)
+                .directors(new ArrayList<>())
                 .build();
     }
 
-    /*@Test
+    @Test
     public void getPopular_shouldFindPopularFilmsWithCountParam() {
         Collection<Film> films = filmStorage.getPopular(2L, null, null);
+        System.out.println(films);
         assertTrue(films.size() == 2);
         assertThat(films.stream().findFirst())
                 .isPresent()
@@ -179,5 +183,5 @@ class FilmDbStorageTests {
                 .usingRecursiveComparison()
                 .ignoringActualNullFields()
                 .isEqualTo(getFilm());
-    }*/
+    }
 }
