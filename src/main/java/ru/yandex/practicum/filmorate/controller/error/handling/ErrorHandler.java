@@ -38,8 +38,9 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleUnknownSearchMode(final MethodArgumentTypeMismatchException e) {
+        log.error("Argument mismatch error", e);
         return new ErrorResponse(
-                "Unknown Search mode, must be title or director: " + e.getValue()
+                e.getMessage()
         );
     }
 
