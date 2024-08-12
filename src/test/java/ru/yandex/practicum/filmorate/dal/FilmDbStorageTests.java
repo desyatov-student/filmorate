@@ -3,11 +3,13 @@ package ru.yandex.practicum.filmorate.dal;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.assertj.core.api.Assertions;
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.model.*;
 
 import java.time.LocalDate;
@@ -16,8 +18,8 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @JdbcTest
 @AutoConfigureTestDatabase
@@ -261,5 +263,145 @@ class FilmDbStorageTests {
                 .hasSize(2)
                 .first()
                 .returns(1L, Film::getId);
+    }
+
+    //add-search tests
+    @Test
+    @Sql(value = {"/add-search/clear.sql", "/add-search/test-data-init.sql"},
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    public void searchByTitleTest() {
+        //Given
+        String query = "крад";
+        boolean searchByTitle = true;
+        boolean searchByDirector = false;
+
+        //When
+        List<Film> results = filmStorage.search(query, searchByTitle, searchByDirector);
+
+        //Then
+        assertThat(results).size().isEqualTo(2);
+        AssertionsForClassTypes.assertThat(results.get(0))
+                .hasFieldOrPropertyWithValue("name", "Крадущийся тигр, затаившийся дракон");
+        assertThat(results.get(0).getDirectors()).size().isEqualTo(2);
+
+        AssertionsForClassTypes.assertThat(results.get(1))
+                .hasFieldOrPropertyWithValue("name", "Крадущийся в ночи");
+        assertThat(results.get(1).getDirectors()).size().isEqualTo(1);
+    }
+
+
+    @Test
+    @Sql(value = {"/add-search/clear.sql", "/add-search/test-data-init.sql"},
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    public void searchByTitleThatHasZeroDirectorsTest() {
+        //Given
+        String query = "lm4";
+        boolean searchByTitle = true;
+        boolean searchByDirector = false;
+
+        //When
+        List<Film> results = filmStorage.search(query, searchByTitle, searchByDirector);
+
+        //Then
+        assertThat(results).size().isEqualTo(1);
+        assertThat(results.get(0))
+                .hasFieldOrPropertyWithValue("name", "film4");
+        assertThat(results.get(0).getDirectors()).size().isEqualTo(0);
+    }
+
+    @Test
+    @Sql(value = {"/add-search/clear.sql", "/add-search/test-data-init.sql"},
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    public void searchByEmptyTitleTest() {
+        //Given
+        String query = "";
+        boolean searchByTitle = true;
+        boolean searchByDirector = false;
+
+        //When
+        List<Film> results = filmStorage.search(query, searchByTitle, searchByDirector);
+
+        //Then
+        assertThat(results).isEmpty();
+    }
+
+    @Test
+    @Sql(value = {"/add-search/clear.sql", "/add-search/test-data-init.sql"},
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    public void searchByDirectorTest() {
+        //Given
+        String query = "рад";
+        boolean searchByTitle = false;
+        boolean searchByDirector = true;
+
+        //When
+        List<Film> results = filmStorage.search(query, searchByTitle, searchByDirector);
+
+        //Then
+        assertThat(results).size().isEqualTo(1);
+        assertThat(results.get(0))
+                .hasFieldOrPropertyWithValue("name", "film5");
+        assertThat(results.get(0).getDirectors()).size().isEqualTo(1);
+        assertThat(results.get(0).getDirectors().get(0).getName()).isEqualTo("Крадович");
+    }
+
+    @Test
+    @Sql(value = {"/add-search/clear.sql", "/add-search/test-data-init.sql"},
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    public void searchByEmptyDirectorTest() {
+        //Given
+        String query = "";
+        boolean searchByTitle = false;
+        boolean searchByDirector = true;
+
+        //When
+        List<Film> results = filmStorage.search(query, searchByTitle, searchByDirector);
+
+        //Then
+        assertThat(results).isEmpty();
+    }
+
+    @Test
+    @Sql(value = {"/add-search/clear.sql", "/add-search/test-data-init.sql"},
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    public void searchByTitleAndDirectorTest() {
+        //Given
+        String query = "КрАд";
+        boolean searchByTitle = true;
+        boolean searchByDirector = true;
+
+        //When
+        List<Film> results = filmStorage.search(query, searchByTitle, searchByDirector);
+
+        //Then
+        assertThat(results).size().isEqualTo(3);
+        assertThat(results.get(0))
+                .hasFieldOrPropertyWithValue("name", "Крадущийся тигр, затаившийся дракон");
+        assertThat(results.get(0).getDirectors()).size().isEqualTo(2);
+
+        assertThat(results.get(1))
+                .hasFieldOrPropertyWithValue("name", "Крадущийся в ночи");
+        assertThat(results.get(1).getDirectors()).size().isEqualTo(1);
+
+        assertThat(results.get(2))
+                .hasFieldOrPropertyWithValue("name", "film5");
+        assertThat(results.get(2).getDirectors()).size().isEqualTo(1);
+        assertThat(results.get(2).getDirectors().get(0).getName()).isEqualTo("Крадович");
+    }
+
+    @Test
+    @Sql(value = {"/add-search/clear.sql", "/add-search/test-data-init.sql"},
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    public void searchByEmptyTitleAndDirectorTest() {
+        //Given
+        String query = "";
+        boolean searchByTitle = true;
+        boolean searchByDirector = true;
+
+        //When
+        List<Film> results = filmStorage.search(query, searchByTitle, searchByDirector);
+
+        //Then
+        assertThat(results).isEmpty();
     }
 }
