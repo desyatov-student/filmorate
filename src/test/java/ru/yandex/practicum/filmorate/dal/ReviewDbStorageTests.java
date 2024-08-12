@@ -25,6 +25,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class ReviewDbStorageTests {
 
     private final ReviewDbStorage reviewStorage;
+    private final ReviewRateDbStorage reviewRateStorage;
     private final UserDbStorage userStorage;
     private final FilmDbStorage filmStorage;
 
@@ -54,7 +55,7 @@ public class ReviewDbStorageTests {
         ReviewRate reviewRateExpected = createReviewRate(review, isLike);
 
         // When
-        Optional<ReviewRate> reviewRateOptional = reviewStorage.findReviewRate(review, reviewRateExpected.getUserId());
+        Optional<ReviewRate> reviewRateOptional = reviewRateStorage.findReviewRate(review.getId(), reviewRateExpected.getUserId());
 
         // Then
         assertThat(reviewRateOptional)
@@ -98,21 +99,13 @@ public class ReviewDbStorageTests {
         Review review = TestData.createReview();
         review.setUserId(userId);
         review.setFilmId(filmId);
-        Long reviewId = reviewStorage.save(review).getId();
+        Long reviewId = reviewStorage.create(review).getId();
         review.setId(reviewId);
         return review;
     }
 
     private ReviewRate createReviewRate(Review review, boolean isLike) {
         Long userId = userStorage.save(TestData.createUser()).getId();
-        ReviewRate reviewRate = new ReviewRate(null, review.getId(), userId, isLike);
-        Long reviewRateId;
-        if (isLike) {
-            reviewRateId = reviewStorage.createLike(review, userId).getId();
-        } else {
-            reviewRateId = reviewStorage.createDislike(review, userId).getId();
-        }
-        reviewRate.setId(reviewRateId);
-        return reviewRate;
+        return reviewRateStorage.createRate(review.getId(), userId, isLike);
     }
 }

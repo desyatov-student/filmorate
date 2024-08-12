@@ -10,10 +10,12 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.ReviewMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.ReviewRate;
+import ru.yandex.practicum.filmorate.storage.ReviewRateStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -21,6 +23,7 @@ import java.util.List;
 public class ReviewService {
 
     private final ReviewStorage reviewStorage;
+    private final ReviewRateStorage reviewRateStorage;
     private final FilmService filmService;
     private final UserService userService;
     private final ReviewMapper reviewMapper;
@@ -56,7 +59,7 @@ public class ReviewService {
         userService.getUserById(request.getUserId());
         filmService.getFilmById(request.getFilmId());
         Review review = reviewMapper.toReview(request);
-        review = reviewStorage.save(review);
+        review = reviewStorage.create(review);
         log.info("Creating review is successful: {}", review);
         return reviewMapper.toDto(review);
     }
@@ -81,25 +84,54 @@ public class ReviewService {
     }
 
     public ReviewDto like(Long reviewId, Long userId) {
-        Review review = getReviewById(reviewId);
-        User user = userService.getUserById(userId);
-        reviewStorage.removeRate(review, user.getId());
-        reviewStorage.createLike(review, user.getId());
-        return getById(reviewId);
+        Review review = getReview(reviewId, userId, true);
+        return reviewMapper.toDto(review);
     }
 
     public ReviewDto dislike(Long reviewId, Long userId) {
-        Review review = getReviewById(reviewId);
-        User user = userService.getUserById(userId);
-        reviewStorage.removeRate(review, user.getId());
-        reviewStorage.createDislike(review, user.getId());
-        return getById(reviewId);
+        Review review = getReview(reviewId, userId, false);
+        return reviewMapper.toDto(review);
     }
 
     public ReviewDto removeRate(Long reviewId, Long userId) {
         Review review = getReviewById(reviewId);
-        User user = userService.getUserById(userId);
-        reviewStorage.removeRate(review, user.getId());
-        return getById(reviewId);
+        Optional<ReviewRate> reviewRateOpt = reviewRateStorage.findReviewRate(reviewId, userId);
+        reviewRateOpt.ifPresentOrElse(reviewRate -> {
+            Integer useful = review.getUseful() + (reviewRate.getIsLike() ? -1 : 1);
+            review.setUseful(useful);
+            reviewRateStorage.removeRate(reviewRate);
+        }, () -> {
+            String errorMessage = String.format("Rate not found for reviewId = %d and userId = %d", reviewId, userId);
+            log.error(errorMessage);
+            throw new NotFoundException(errorMessage);
+        });
+        return reviewMapper.toDto(review);
+    }
+
+    private Review getReview(Long reviewId, Long userId, Boolean targetIsLike) {
+        Review review = getReviewById(reviewId);
+        Optional<ReviewRate> reviewRateOpt = reviewRateStorage.findReviewRate(reviewId, userId);
+        if (reviewRateOpt.isPresent()) {
+            ReviewRate reviewRate = reviewRateOpt.get();
+            updateReviewUsefulAndRate(review, reviewRate, targetIsLike);
+            reviewRateStorage.updateRate(reviewRate);
+        } else {
+            reviewRateStorage.createRate(reviewId, userId, targetIsLike);
+            Integer useful = targetIsLike ? review.getUseful() + 1 : review.getUseful() - 1;
+            review.setUseful(useful);
+        }
+        return review;
+    }
+
+    private void updateReviewUsefulAndRate(Review review, ReviewRate reviewRate, Boolean targetIsLike) {
+        if (targetIsLike == reviewRate.getIsLike()) {
+            return;
+        }
+        if (reviewRate.getIsLike() && !targetIsLike) {
+            review.setUseful(review.getUseful() - 2);
+        } else {
+            review.setUseful(review.getUseful() + 2);
+        }
+        reviewRate.setIsLike(targetIsLike);
     }
 }
