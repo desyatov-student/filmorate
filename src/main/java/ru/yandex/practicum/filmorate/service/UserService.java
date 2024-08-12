@@ -139,7 +139,7 @@ public class UserService {
     }
 
     private void updateUserNameIfNotExist(NewUserRequest target, NewUserRequest source) {
-        if (source.getName() == null) {
+        if (source.getName() == null || source.getName().isBlank()) {
             target.setName(source.getLogin());
         } else {
             target.setName(source.getName());
