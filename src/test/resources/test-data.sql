@@ -39,3 +39,17 @@ INSERT INTO film_likes (film_id,user_id) VALUES
     (1,1),
     (1,2),
     (2,2);
+
+INSERT INTO directors (name)
+VALUES
+    ('director1'),
+    ('director2'),
+    ('director3 surname3'),
+    ('director4');
+
+INSERT INTO film_directors (film_id, director_id)
+VALUES
+    (1,1),
+    (2,2),
+    (2,3),
+    (3,1);

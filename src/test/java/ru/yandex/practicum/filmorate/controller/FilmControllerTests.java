@@ -42,8 +42,8 @@ public class FilmControllerTests {
 
         // Given
         List<FilmDto> expectedFilms = List.of(
-                new FilmDto(1L, "name", "desc", LocalDate.now(), 30, List.of(), new MpaDto(1L, "R1")),
-                new FilmDto(2L, "name2", "desc2", LocalDate.now(), 40, List.of(), new MpaDto(1L, "R1"))
+                new FilmDto(1L, "name", "desc", LocalDate.now(), 30, List.of(), new MpaDto(1L, "R1"), List.of()),
+                new FilmDto(2L, "name2", "desc2", LocalDate.now(), 40, List.of(), new MpaDto(1L, "R1"), List.of())
         );
         when(service.getFilms()).thenReturn(expectedFilms);
 

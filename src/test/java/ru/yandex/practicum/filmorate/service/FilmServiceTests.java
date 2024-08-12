@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
@@ -32,6 +33,8 @@ public class FilmServiceTests {
     @MockBean
     private GenreStorage genreStorage;
     @MockBean
+    private DirectorStorage directorStorage;
+    @MockBean
     private MpaStorage mpaStorage;
     @MockBean
     private UserService userService;
@@ -45,8 +48,8 @@ public class FilmServiceTests {
 
         // Given
         List<Film> expectedFilms = List.of(
-                new Film(1L, "name", "desc", LocalDate.now(), 30, List.of(), new Mpa(1L, "R1")),
-                new Film(2L, "name2", "desc2", LocalDate.now(), 40, List.of(), new Mpa(1L, "R1"))
+                new Film(1L, "name", "desc", LocalDate.now(), 30, List.of(), new Mpa(1L, "R1"), List.of()),
+                new Film(2L, "name2", "desc2", LocalDate.now(), 40, List.of(), new Mpa(1L, "R1"), List.of())
         );
         when(filmStorage.findAll()).thenReturn(expectedFilms);
 

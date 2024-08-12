@@ -120,7 +120,7 @@ public class FilmTests {
     private NewFilmRequest createNewFilmRequest() {
         return new NewFilmRequest(null, "film name",
                 "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tatio",
-                LocalDate.of(1895, 12, 28), 60, new LinkedHashSet<>(List.of(new GenreDto(1L, "name"))), new MpaDto(1L, "name"));
+                LocalDate.of(1895, 12, 28), 60, new LinkedHashSet<>(List.of(new GenreDto(1L, "name"))), new MpaDto(1L, "name"), new LinkedHashSet<>(List.of()));
     }
 
     private static Stream<Arguments> validate_Failed_nameIsNotValid() {
