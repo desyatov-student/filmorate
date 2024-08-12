@@ -104,7 +104,7 @@ public class UserService {
                         Instant.now().toEpochMilli(),
                         user.getId(),
                         "FRIEND",
-                        "ADD" ,
+                        "ADD",
                         friend.getId()));
     }
 
@@ -117,7 +117,7 @@ public class UserService {
                         Instant.now().toEpochMilli(),
                         user.getId(),
                         "FRIEND",
-                        "REMOVE" ,
+                        "REMOVE",
                         friend.getId()));
     }
 

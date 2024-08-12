@@ -36,14 +36,14 @@ public class FeedDbStorageTests {
                 "user1@yandex.ru",
                 "user1",
                 "name1",
-                LocalDate.of(2000,7,15)));
+                LocalDate.of(2000, 7, 15)));
 
         userDbStorage.save(new User(
                 2L,
                 "user2@yandex.ru",
                 "user2",
                 "name2",
-                LocalDate.of(2000,7,15)));
+                LocalDate.of(2000, 7, 15)));
     }
 
     @Test
@@ -52,14 +52,14 @@ public class FeedDbStorageTests {
                 Instant.now().toEpochMilli(),
                 1L,
                 "FRIEND",
-                "ADD" ,
+                "ADD",
                 2L));
 
         feedDbStorage.save(new FeedDto(
                 Instant.now().toEpochMilli(),
                 1L,
                 "FRIEND",
-                "REMOVE" ,
+                "REMOVE",
                 2L));
 
         List<Feed> feeds = feedDbStorage.getFeed(1L);
