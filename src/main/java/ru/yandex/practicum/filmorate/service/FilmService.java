@@ -14,6 +14,8 @@ import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.SearchMode;
+import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.model.SortOrderFilmsByDirector;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -149,6 +151,14 @@ public class FilmService {
             throw new ConditionsNotMetException("Year is not exist");
         }
         return filmDbStorage.getPopular(count, genreId, year).stream()
+                .map(filmMapper::toDto)
+                .toList();
+    }
+
+    public List<FilmDto> search(String query, List<SearchMode> modes) {
+        boolean searchByTitle = modes.contains(SearchMode.TITLE);
+        boolean searchByDirector = modes.contains(SearchMode.DIRECTOR);
+        return filmDbStorage.search(query, searchByTitle, searchByDirector).stream()
                 .map(filmMapper::toDto)
                 .toList();
     }
