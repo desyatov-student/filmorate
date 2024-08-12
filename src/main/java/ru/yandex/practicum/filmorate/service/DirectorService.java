@@ -32,7 +32,7 @@ public class DirectorService {
                 });
     }
 
-    public List<DirectorDto> getUsers() {
+    public List<DirectorDto> getDirectors() {
         return directorDbStorage.findAll().stream()
                 .map(directorMapper::toDto)
                 .toList();

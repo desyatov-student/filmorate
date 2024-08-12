@@ -2,23 +2,22 @@ package ru.yandex.practicum.filmorate.dal;
 
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.ComponentScan;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @JdbcTest
 @AutoConfigureTestDatabase
@@ -113,8 +112,6 @@ class FilmDbStorageTests {
         return new DataForRecommendations(users, films);
     }
 
-
-
     static Film getFilm() {
         ArrayList<Genre> genres = new ArrayList<>();
         genres.add(new Genre(1L, "Комедия"));
@@ -126,14 +123,13 @@ class FilmDbStorageTests {
                 .duration(150)
                 .mpa(new Mpa(1L, "G"))
                 .genres(genres)
-                .directors(new ArrayList<>())
+                .directors(List.of(new Director(1L, "director1")))
                 .build();
     }
 
     @Test
     public void getPopular_shouldFindPopularFilmsWithCountParam() {
         Collection<Film> films = filmStorage.getPopular(2L, null, null);
-        System.out.println(films);
         assertTrue(films.size() == 2);
         assertThat(films.stream().findFirst())
                 .isPresent()
@@ -183,5 +179,87 @@ class FilmDbStorageTests {
                 .usingRecursiveComparison()
                 .ignoringActualNullFields()
                 .isEqualTo(getFilm());
+    }
+
+    @Test
+    public void getCommon_shouldFindCommonFilms() {
+        Collection<Film> films = filmStorage.getCommon(1L, 2L);
+        Assertions.assertThat(films.size() == 1);
+        Assertions.assertThat(films.stream().findFirst())
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .ignoringActualNullFields()
+                .isEqualTo(getFilm());
+    }
+
+    @Test
+    public void getCommon_afterLikeCountCommonFilmsWillIncrease() {
+        Collection<Film> films = filmStorage.getCommon(1L, 2L);
+        Assertions.assertThat(films.size() == 1);
+
+        filmStorage.like(filmStorage.findFilmById(2L).get(), 1L);
+
+        films = filmStorage.getCommon(1L, 2L);
+        Assertions.assertThat(films.size() == 2);
+    }
+
+    @Test
+    public void getDirectorFilms_throwsExceptionWhenWrongSortingParameter() {
+
+        // When
+        Throwable thrown = catchThrowable(() -> {
+            filmStorage.getDirectorFilms(1L, null);
+        });
+
+        // Then
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
+    public void getDirectorFilms_returnEmptyListOfFilmsWhenDirectorHasNoFilms() {
+
+        // Given
+        // test-data.sql
+
+        // When
+        List<Film> directorFilms = filmStorage.getDirectorFilms(5L, SortOrderFilmsByDirector.YEAR);
+
+        // Then
+        assertThat(directorFilms)
+                .isEmpty();
+    }
+
+    @Test
+    public void getDirectorFilms_returnListOfFilmsSortedByYear() {
+
+        // Given
+        // test-data.sql
+
+        // When
+        List<Film> directorFilms = filmStorage.getDirectorFilms(1L, SortOrderFilmsByDirector.YEAR);
+
+        // Then
+        assertThat(directorFilms)
+                .hasSize(2)
+                .first()
+                .returns(3L, Film::getId);
+    }
+
+    @Test
+    public void getDirectorFilms_returnListOfFilmsSortedByLikes() {
+
+        // Given
+        // test-data.sql
+
+        // When
+        List<Film> directorFilms = filmStorage.getDirectorFilms(1L, SortOrderFilmsByDirector.LIKES);
+
+        // Then
+        assertThat(directorFilms)
+                .hasSize(2)
+                .first()
+                .returns(1L, Film::getId);
     }
 }
