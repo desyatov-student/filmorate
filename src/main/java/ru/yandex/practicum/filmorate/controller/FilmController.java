@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
+import ru.yandex.practicum.filmorate.model.SortOrderFilmsByDirector;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
@@ -74,7 +76,22 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<FilmDto> getPopular(@RequestParam(defaultValue = "10") Integer count) {
-        return filmService.getPopular(count);
+    public List<FilmDto> getPopular(@RequestParam(required = false) Long count,
+                                    @RequestParam(required = false) Long genreId,
+                                    @RequestParam(required = false) Long year) {
+        return filmService.getPopular(count, genreId, year);
+    }
+
+    @GetMapping("/common")
+    public List<FilmDto> getCommon(@RequestParam Long userId, @RequestParam Long friendId) {
+        return filmService.getCommon(userId, friendId);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<FilmDto> getDirectorFilms(
+            @PathVariable Long directorId,
+            @RequestParam(defaultValue = "year") @Pattern(regexp = "year|likes") String sortBy
+    ) {
+        return filmService.getDirectorFilms(directorId, SortOrderFilmsByDirector.from(sortBy));
     }
 }

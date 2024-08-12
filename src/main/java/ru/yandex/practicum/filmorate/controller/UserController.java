@@ -102,7 +102,7 @@ public class UserController {
     public List<FilmDto> getRecommendations(@PathVariable Long id) {
         return userService.getRecommendations(id);
     }
-
+  
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{id}/feed")
     public List<FeedDto> getFeeds(@PathVariable Long id) {

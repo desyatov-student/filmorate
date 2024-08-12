@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.FeedDto;
+
 import ru.yandex.practicum.filmorate.dto.NewUserRequest;
 import ru.yandex.practicum.filmorate.dto.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.UserDto;
@@ -118,6 +119,11 @@ public class UserService {
                         "FRIEND",
                         "REMOVE" ,
                         friend.getId()));
+    }
+
+    public void removeUser(Long id) {
+        User user = getUserById(id);
+        userDbStorage.removeUser(user);
     }
 
     public void removeUser(Long id) {

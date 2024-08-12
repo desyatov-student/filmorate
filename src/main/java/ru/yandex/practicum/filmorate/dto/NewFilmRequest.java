@@ -34,4 +34,6 @@ public class NewFilmRequest {
 
     @NotNull(message = "Обязательное поле")
     private MpaDto mpa;
+
+    private LinkedHashSet<DirectorDto> directors;
 }
