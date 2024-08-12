@@ -197,14 +197,14 @@ public class FilmService {
     public List<FilmDto> getCommon(Long userId, Long friendId) {
         getUserById(userId);
         getUserById(friendId);
-        return filmDbStorage.getCommon(userId,friendId).stream()
+        return filmDbStorage.getCommon(userId, friendId).stream()
                 .map(filmMapper::toDto)
                 .toList();
     }
 
     public List<FilmDto> getDirectorFilms(Long directorId, SortOrderFilmsByDirector sortBy) {
         if (directorDbStorage.findById(directorId).isEmpty()) {
-                throw new NotFoundException(String.format("Director with id = %d not found", directorId));
+            throw new NotFoundException(String.format("Director with id = %d not found", directorId));
         }
         return filmDbStorage.getDirectorFilms(directorId, sortBy).stream()
                 .map(filmMapper::toDto)
