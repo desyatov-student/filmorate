@@ -14,9 +14,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
-
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
