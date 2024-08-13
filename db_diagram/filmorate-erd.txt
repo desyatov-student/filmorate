@@ -60,6 +60,7 @@ Table mpa {
   id integer [pk]
   name varchar
 }
+
 Table directors {
   id bigint [pk]
   name varchar
@@ -89,9 +90,6 @@ Ref: users.id < reviews.user_id
 Ref: reviews.id < review_rates.review_id
 Ref: users.id < review_rates.user_id
 
-Ref: directors.id < film_directors.director_id
-Ref: films.id < film_directors.film_id
-
 Ref: genres.id < film_genres.genre_id
 Ref: films.id < film_genres.film_id
 
@@ -99,5 +97,8 @@ Ref: mpa.id < films.mpa_id
 
 Ref: users.id < friends.user_id
 Ref: users.id < friends.friend_id
+
+Ref: directors.id < film_directors.director_id
+Ref: films.id < film_directors.film_id
 
 Ref: users.id < feeds.user_id
