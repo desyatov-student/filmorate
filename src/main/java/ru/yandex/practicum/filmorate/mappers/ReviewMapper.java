@@ -22,6 +22,8 @@ public interface ReviewMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "useful", ignore = true)
+    @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "filmId", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Review updateReview(@MappingTarget Review review, UpdateReviewRequest request);
 }

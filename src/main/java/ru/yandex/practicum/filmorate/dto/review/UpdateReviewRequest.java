@@ -15,6 +15,4 @@ public class UpdateReviewRequest {
     @NotBlankOrNull
     private String content;
     private Boolean isPositive;
-    private Long userId;
-    private Long filmId;
 }

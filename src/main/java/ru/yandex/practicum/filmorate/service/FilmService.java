@@ -123,9 +123,7 @@ public class FilmService {
         UserDto user = getUserById(userId);
         Film film = getFilmById(id);
         if (filmDbStorage.hasLike(film, user.getId())) {
-            String message = String.format("Like exists for filmId = %d, userId = %d", film.getId(), user.getId());
-            log.error(message);
-            throw new DuplicatedDataException(message);
+            return;
         }
         filmDbStorage.like(film, user.getId());
         feedService.create(userId, EventType.LIKE, Operation.ADD, id);

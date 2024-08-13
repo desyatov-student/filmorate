@@ -65,12 +65,6 @@ public class ReviewService {
     }
 
     public ReviewDto update(UpdateReviewRequest request) {
-        if (request.getUserId() != null) {
-            userService.getUserById(request.getUserId());
-        }
-        if (request.getFilmId() != null) {
-            filmService.getFilmById(request.getFilmId());
-        }
         Review review = getReviewById(request.getId());
         review = reviewMapper.updateReview(review, request);
         review = reviewStorage.update(review);
@@ -107,6 +101,7 @@ public class ReviewService {
             log.error(errorMessage);
             throw new NotFoundException(errorMessage);
         });
+        feedService.create(userId, EventType.LIKE, Operation.REMOVE, reviewId);
         return reviewMapper.toDto(review);
     }
 
@@ -117,10 +112,12 @@ public class ReviewService {
             ReviewRate reviewRate = reviewRateOpt.get();
             updateReviewUsefulAndRate(review, reviewRate, targetIsLike);
             reviewRateStorage.updateRate(reviewRate);
+            feedService.create(userId, EventType.LIKE, Operation.UPDATE, reviewId);
         } else {
             reviewRateStorage.createRate(reviewId, userId, targetIsLike);
             Integer useful = targetIsLike ? review.getUseful() + 1 : review.getUseful() - 1;
             review.setUseful(useful);
+            feedService.create(userId, EventType.LIKE, Operation.ADD, reviewId);
         }
         return review;
     }
