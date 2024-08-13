@@ -11,7 +11,7 @@ public class Feed {
     private Long eventId;
     private Long timestamp;
     private Long userId;
-    private String eventType;
-    private String operation;
+    private EventType eventType;
+    private Operation operation;
     private Long entityId;
 }

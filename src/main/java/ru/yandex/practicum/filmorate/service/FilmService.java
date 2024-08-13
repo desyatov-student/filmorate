@@ -13,10 +13,12 @@ import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.model.SearchMode;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.SortOrderFilmsByDirector;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -137,8 +139,8 @@ public class FilmService {
                 new FeedDto(
                         Instant.now().toEpochMilli(),
                         userId,
-                        "LIKE",
-                        "ADD",
+                        EventType.LIKE,
+                        Operation.ADD,
                         id));
     }
 
@@ -150,8 +152,8 @@ public class FilmService {
                 new FeedDto(
                         Instant.now().toEpochMilli(),
                         userId,
-                        "LIKE",
-                        "REMOVE",
+                        EventType.LIKE,
+                        Operation.REMOVE,
                         id));
     }
 

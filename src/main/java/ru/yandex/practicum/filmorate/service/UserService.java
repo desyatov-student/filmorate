@@ -15,9 +15,11 @@ import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
 import ru.yandex.practicum.filmorate.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.mappers.UserMapperImpl;
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.Instant;
@@ -32,8 +34,8 @@ public class UserService {
     private final UserStorage userDbStorage;
     private final FilmStorage filmDbStorage;
     private final UserMapper userMapper = new UserMapperImpl();
-    private final FilmMapper filmMapper = new FilmMapperImpl();
     private final FeedStorage feedStorage;
+    private final FilmMapper filmMapper = new FilmMapperImpl();
 
     public List<UserDto> getUsers() {
         return userDbStorage.findAll().stream()
@@ -101,8 +103,8 @@ public class UserService {
                 new FeedDto(
                         Instant.now().toEpochMilli(),
                         user.getId(),
-                        "FRIEND",
-                        "ADD",
+                        EventType.FRIEND,
+                        Operation.ADD,
                         friend.getId()));
     }
 
@@ -114,8 +116,8 @@ public class UserService {
                 new FeedDto(
                         Instant.now().toEpochMilli(),
                         user.getId(),
-                        "FRIEND",
-                        "REMOVE",
+                        EventType.FRIEND,
+                        Operation.REMOVE,
                         friend.getId()));
     }
 

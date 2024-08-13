@@ -9,7 +9,9 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.ComponentScan;
 import ru.yandex.practicum.filmorate.dto.FeedDto;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Feed;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.Instant;
@@ -49,15 +51,15 @@ public class FeedDbStorageTests {
         feedDbStorage.save(new FeedDto(
                 Instant.now().toEpochMilli(),
                 1L,
-                "FRIEND",
-                "ADD",
+                EventType.FRIEND,
+                Operation.ADD,
                 2L));
 
         feedDbStorage.save(new FeedDto(
                 Instant.now().toEpochMilli(),
                 1L,
-                "FRIEND",
-                "REMOVE",
+                EventType.FRIEND,
+                Operation.REMOVE,
                 2L));
 
         List<Feed> feeds = feedDbStorage.getFeed(1L);

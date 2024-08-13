@@ -69,8 +69,8 @@ public class ReviewService {
                 new FeedDto(
                         Instant.now().toEpochMilli(),
                         review.getUserId(),
-                        "REVIEW",
-                        "ADD",
+                        EventType.REVIEW,
+                        Operation.ADD,
                         review.getId()));
         log.info("Creating review is successful: {}", review);
         return reviewMapper.toDto(review);
@@ -90,8 +90,8 @@ public class ReviewService {
                 new FeedDto(
                         Instant.now().toEpochMilli(),
                         review.getUserId(),
-                        "REVIEW",
-                        "UPDATE",
+                        EventType.REVIEW,
+                        Operation.UPDATE,
                         review.getId()));
         log.info("Updating review is successful: {}", review);
         return reviewMapper.toDto(review);
@@ -104,8 +104,8 @@ public class ReviewService {
                 new FeedDto(
                         Instant.now().toEpochMilli(),
                         review.getUserId(),
-                        "REVIEW",
-                        "REMOVE",
+                        EventType.REVIEW,
+                        Operation.REMOVE,
                         review.getId()));
 
     }
