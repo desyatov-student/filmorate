@@ -352,11 +352,8 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
     }
 
     private void saveFilmDirectors(Film film) {
-        if (film.getDirectors() == null) {
-            return;
-        }
         delete(DELETE_FILM_DIRECTORS_QUERY, film.getId());
-        if (film.getDirectors().isEmpty()) {
+        if (film.getDirectors() == null || film.getDirectors().isEmpty()) {
             return;
         }
 

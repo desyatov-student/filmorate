@@ -61,6 +61,17 @@ Table mpa {
   name varchar
 }
 
+Table directors {
+  id bigint [pk]
+  name varchar
+}
+
+Table film_directors {
+  id bigint [pk]
+  film_id integer
+  director_id integer
+}
+
 Ref: films.id < film_likes.film_id
 Ref: users.id < film_likes.user_id
 
@@ -77,3 +88,5 @@ Ref: mpa.id < films.mpa_id
 
 Ref: users.id < friends.user_id
 Ref: users.id < friends.friend_id
+Ref: directors.id < film_directors.director_id
+Ref: films.id < film_directors.film_id

@@ -70,8 +70,6 @@ CREATE TABLE IF NOT EXISTS review_rates (
     user_id BIGINT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     is_like BOOLEAN NOT NULL
 );
-ALTER TABLE review_rates DROP CONSTRAINT IF EXISTS uq_review_rates;
-ALTER TABLE review_rates ADD CONSTRAINT uq_review_rates UNIQUE(review_id, user_id);
 
 CREATE TABLE IF NOT EXISTS feeds (
     event_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -80,4 +78,10 @@ CREATE TABLE IF NOT EXISTS feeds (
     event_type VARCHAR(10),
     operation VARCHAR(10),
     entity_id BIGINT
-)
+);
+
+ALTER TABLE review_rates DROP CONSTRAINT IF EXISTS uq_review_rates;
+ALTER TABLE review_rates ADD CONSTRAINT uq_review_rates UNIQUE(review_id, user_id);
+
+ALTER TABLE film_directors DROP CONSTRAINT IF EXISTS uq_film_directors;
+ALTER TABLE film_directors ADD CONSTRAINT uq_film_directors UNIQUE(film_id, director_id);

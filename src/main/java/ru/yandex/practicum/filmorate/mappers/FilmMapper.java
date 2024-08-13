@@ -21,6 +21,7 @@ public interface FilmMapper {
     Film toFilm(NewFilmRequest request);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "directors", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Film updateFilm(@MappingTarget Film film, UpdateFilmRequest request);
 }
