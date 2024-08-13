@@ -11,7 +11,7 @@ import java.util.List;
 
 @Repository
 public class FeedDbStorage extends BaseDbStorage<Feed> implements FeedStorage {
-    private static final String FIND_FEED_BY_ID_QUERY = "SELECT * FROM feeds where user_id = ?";
+    private static final String FIND_FEED_BY_ID_QUERY = "SELECT * FROM feeds where user_id = ? ORDER BY timestamp ASC";
     private static final String PUT_EVENT_QUERY = """
             INSERT INTO feeds (timestamp, user_id, event_type, operation, entity_id)
             VALUES (?, ?, ?, ?, ?)
