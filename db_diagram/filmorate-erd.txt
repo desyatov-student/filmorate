@@ -60,6 +60,16 @@ Table mpa {
   id integer [pk]
   name varchar
 }
+Table directors {
+  id bigint [pk]
+  name varchar
+}
+
+Table film_directors {
+  id bigint [pk]
+  film_id integer
+  director_id integer
+  }
 
 Table feeds {
   event_id integer [pk]
@@ -78,6 +88,9 @@ Ref: users.id < reviews.user_id
 
 Ref: reviews.id < review_rates.review_id
 Ref: users.id < review_rates.user_id
+
+Ref: directors.id < film_directors.director_id
+Ref: films.id < film_directors.film_id
 
 Ref: genres.id < film_genres.genre_id
 Ref: films.id < film_genres.film_id
