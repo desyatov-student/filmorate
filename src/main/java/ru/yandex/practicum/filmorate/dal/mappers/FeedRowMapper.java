@@ -15,7 +15,7 @@ public class FeedRowMapper implements RowMapper<Feed> {
     public Feed mapRow(ResultSet rs, int rowNum) throws SQLException {
         Feed.FeedBuilder builder = Feed.builder();
 
-        builder.timestamp(rs.getLong("timestamp"));
+        builder.timestamp(rs.getTimestamp("timestamp").getTime());
         builder.userId(rs.getLong("user_id"));
         builder.eventType(EventType.valueOf(rs.getString("event_type")));
         builder.operation(Operation.valueOf(rs.getString("operation")));

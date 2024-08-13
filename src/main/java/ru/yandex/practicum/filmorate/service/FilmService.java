@@ -13,10 +13,7 @@ import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.SearchMode;
-import ru.yandex.practicum.filmorate.storage.DirectorStorage;
-import ru.yandex.practicum.filmorate.model.SortOrderFilmsByDirector;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
@@ -38,6 +35,7 @@ public class FilmService {
     private final DirectorStorage directorDbStorage;
     private final MpaStorage mpaDbStorage;
     private final UserService userService;
+    private final FeedService feedService;
     private final FeedStorage feedDbStorage;
     private final FilmMapper filmMapper = new FilmMapperImpl();
 
@@ -133,26 +131,14 @@ public class FilmService {
             throw new DuplicatedDataException(message);
         }
         filmDbStorage.like(film, user.getId());
-        feedDbStorage.save(
-                new FeedDto(
-                        Instant.now().toEpochMilli(),
-                        userId,
-                        EventType.LIKE,
-                        Operation.ADD,
-                        id));
+        feedDbStorage.save(feedService.create(userId, EventType.LIKE, Operation.ADD, id));
     }
 
     public void removeLike(Long id, Long userId) {
         UserDto user = getUserById(userId);
         Film film = getFilmById(id);
         filmDbStorage.removeLike(film, user.getId());
-        feedDbStorage.save(
-                new FeedDto(
-                        Instant.now().toEpochMilli(),
-                        userId,
-                        EventType.LIKE,
-                        Operation.REMOVE,
-                        id));
+        feedDbStorage.save(feedService.create(userId, EventType.LIKE, Operation.REMOVE, id));
     }
 
     public void removeFilm(Long id) {
@@ -192,14 +178,14 @@ public class FilmService {
     public List<FilmDto> getCommon(Long userId, Long friendId) {
         getUserById(userId);
         getUserById(friendId);
-        return filmDbStorage.getCommon(userId,friendId).stream()
+        return filmDbStorage.getCommon(userId, friendId).stream()
                 .map(filmMapper::toDto)
                 .toList();
     }
 
     public List<FilmDto> getDirectorFilms(Long directorId, SortOrderFilmsByDirector sortBy) {
         if (directorDbStorage.findById(directorId).isEmpty()) {
-                throw new NotFoundException(String.format("Director with id = %d not found", directorId));
+            throw new NotFoundException(String.format("Director with id = %d not found", directorId));
         }
         return filmDbStorage.getDirectorFilms(directorId, sortBy).stream()
                 .map(filmMapper::toDto)

@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
-import ru.yandex.practicum.filmorate.dto.FeedDto;
 import ru.yandex.practicum.filmorate.dto.NewUserRequest;
 import ru.yandex.practicum.filmorate.dto.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.UserDto;
@@ -18,11 +17,10 @@ import ru.yandex.practicum.filmorate.mappers.UserMapperImpl;
 import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.FeedStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,9 +31,10 @@ public class UserService {
 
     private final UserStorage userDbStorage;
     private final FilmStorage filmDbStorage;
-    private final UserMapper userMapper = new UserMapperImpl();
     private final FeedStorage feedStorage;
+    private final UserMapper userMapper = new UserMapperImpl();
     private final FilmMapper filmMapper = new FilmMapperImpl();
+    private final FeedService feedService;
 
     public List<UserDto> getUsers() {
         return userDbStorage.findAll().stream()
@@ -99,26 +98,14 @@ public class UserService {
             throw new DuplicatedDataException(message);
         }
         userDbStorage.saveFriend(user, friend);
-        feedStorage.save(
-                new FeedDto(
-                        Instant.now().toEpochMilli(),
-                        user.getId(),
-                        EventType.FRIEND,
-                        Operation.ADD,
-                        friend.getId()));
+        feedStorage.save(feedService.create(user.getId(), EventType.FRIEND, Operation.ADD, friend.getId()));
     }
 
     public void removeFriend(Long id, Long friendId) {
         User user = getUserById(id);
         User friend = getFriend(friendId);
         userDbStorage.removeFriend(user, friend);
-        feedStorage.save(
-                new FeedDto(
-                        Instant.now().toEpochMilli(),
-                        user.getId(),
-                        EventType.FRIEND,
-                        Operation.REMOVE,
-                        friend.getId()));
+        feedStorage.save(feedService.create(user.getId(), EventType.FRIEND, Operation.REMOVE, friend.getId()));
     }
 
     public void removeUser(Long id) {

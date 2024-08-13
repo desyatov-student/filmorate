@@ -8,5 +8,5 @@ import java.util.List;
 public interface FeedStorage {
     List<Feed> getFeed(Long userId);
 
-    void save(FeedDto feedDto);
+    Feed save(Feed feedDto);
 }

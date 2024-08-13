@@ -2,16 +2,14 @@ package ru.yandex.practicum.filmorate.dal;
 
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.expression.Operation;
-import ru.yandex.practicum.filmorate.dto.FeedDto;
 import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Feed;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.Instant;
@@ -29,8 +27,9 @@ public class FeedDbStorageTests {
     private final FeedDbStorage feedDbStorage;
     private final UserDbStorage userDbStorage;
 
-    @BeforeEach
-    public void before() {
+    @Test
+    public void testGetFriendFeedsList() {
+        //Given
         userDbStorage.save(new User(
                 1L,
                 "user1@yandex.ru",
@@ -38,36 +37,118 @@ public class FeedDbStorageTests {
                 "name1",
                 LocalDate.of(2000, 7, 15)));
 
-        userDbStorage.save(new User(
-                2L,
-                "user2@yandex.ru",
-                "user2",
-                "name2",
-                LocalDate.of(2000, 7, 15)));
-    }
-
-    @Test
-    public void testGetFeedsList() {
-        feedDbStorage.save(new FeedDto(
+        feedDbStorage.save(new Feed(
+                null,
                 Instant.now().toEpochMilli(),
                 1L,
                 EventType.FRIEND,
                 Operation.ADD,
                 2L));
 
-        feedDbStorage.save(new FeedDto(
+        feedDbStorage.save(new Feed(
+                null,
                 Instant.now().toEpochMilli(),
                 1L,
                 EventType.FRIEND,
                 Operation.REMOVE,
                 2L));
-
+        //When
         List<Feed> feeds = feedDbStorage.getFeed(1L);
 
-        assertThat(feeds.size()).isEqualTo(2);
-        assertThat(feeds.get(0).getEventType()).isEqualTo("FRIEND");
-        assertThat(feeds.get(0).getOperation()).isEqualTo("ADD");
-        assertThat(feeds.get(1).getEventType()).isEqualTo("FRIEND");
-        assertThat(feeds.get(1).getOperation()).isEqualTo("REMOVE");
+        //Then
+        assertThat(feeds).hasSize(2);
+        assertThat(feeds.get(0).getEventType()).isEqualTo(EventType.FRIEND);
+        assertThat(feeds.get(0).getOperation()).isEqualTo(Operation.ADD);
+        assertThat(feeds.get(1).getEventType()).isEqualTo(EventType.FRIEND);
+        assertThat(feeds.get(1).getOperation()).isEqualTo(Operation.REMOVE);
+    }
+
+    @Test
+    public void testGetLikeFeedList() {
+        //Given
+        userDbStorage.save(new User(
+                1L,
+                "user1@yandex.ru",
+                "user1",
+                "name1",
+                LocalDate.of(2000, 7, 15)));
+
+        feedDbStorage.save(new Feed(
+                null,
+                Instant.now().toEpochMilli(),
+                1L,
+                EventType.LIKE,
+                Operation.ADD,
+                2L
+        ));
+
+        feedDbStorage.save(new Feed(
+                null,
+                Instant.now().toEpochMilli(),
+                1L,
+                EventType.LIKE,
+                Operation.REMOVE,
+                2L
+        ));
+
+        //When
+        List<Feed> feeds = feedDbStorage.getFeed(1L);
+
+        //Then
+        assertThat(feeds).hasSize(2);
+        assertThat(feeds.get(0).getEventType()).isEqualTo(EventType.LIKE);
+        assertThat(feeds.get(0).getOperation()).isEqualTo(Operation.ADD);
+        assertThat(feeds.get(1).getEventType()).isEqualTo(EventType.LIKE);
+        assertThat(feeds.get(1).getOperation()).isEqualTo(Operation.REMOVE);
+    }
+
+    @Test
+    public void testGetReviewFeedList() {
+        //Given
+        userDbStorage.save(new User(
+                1L,
+                "user1@yandex.ru",
+                "user1",
+                "name1",
+                LocalDate.of(2000, 7, 15)));
+
+        feedDbStorage.save(new Feed(
+                null,
+                Instant.now().toEpochMilli(),
+                1L,
+                EventType.REVIEW,
+                Operation.ADD,
+                2L
+        ));
+
+        feedDbStorage.save(new Feed(
+                null,
+                Instant.now().toEpochMilli(),
+                1L,
+                EventType.REVIEW,
+                Operation.UPDATE,
+                2L
+        ));
+
+        feedDbStorage.save(new Feed(
+                null,
+                Instant.now().toEpochMilli(),
+                1L,
+                EventType.REVIEW,
+                Operation.REMOVE,
+                2L
+        ));
+
+        //When
+        List<Feed> feeds = feedDbStorage.getFeed(1L);
+
+        //Then
+        assertThat(feeds).hasSize(3);
+        assertThat(feeds.get(0).getEventType()).isEqualTo(EventType.REVIEW);
+        assertThat(feeds.get(0).getOperation()).isEqualTo(Operation.ADD);
+        assertThat(feeds.get(1).getEventType()).isEqualTo(EventType.REVIEW);
+        assertThat(feeds.get(1).getOperation()).isEqualTo(Operation.UPDATE);
+        assertThat(feeds.get(2).getEventType()).isEqualTo(EventType.REVIEW);
+        assertThat(feeds.get(2).getOperation()).isEqualTo(Operation.REMOVE);
     }
 }

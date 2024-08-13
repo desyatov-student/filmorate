@@ -3,10 +3,11 @@ package ru.yandex.practicum.filmorate.dal;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.dto.FeedDto;
 import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.storage.FeedStorage;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 
 @Repository
@@ -27,14 +28,16 @@ public class FeedDbStorage extends BaseDbStorage<Feed> implements FeedStorage {
     }
 
     @Override
-    public void save(FeedDto feed) {
-        insert(
+    public Feed save(Feed feed) {
+        Long eventId = insert(
                 PUT_EVENT_QUERY,
-                feed.getTimestamp(),
+                new Timestamp(feed.getTimestamp()),
                 feed.getUserId(),
-                feed.getEventType(),
-                feed.getOperation(),
+                feed.getEventType().toString(),
+                feed.getOperation().toString(),
                 feed.getEntityId()
         );
+        feed.setEventId(eventId);
+        return feed;
     }
 }

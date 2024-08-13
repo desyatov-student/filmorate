@@ -8,9 +8,8 @@ import ru.yandex.practicum.filmorate.dto.review.ReviewDto;
 import ru.yandex.practicum.filmorate.dto.review.UpdateReviewRequest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.ReviewMapper;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.model.ReviewRate;
+import ru.yandex.practicum.filmorate.model.*;
+import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewRateStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 
@@ -24,9 +23,11 @@ public class ReviewService {
 
     private final ReviewStorage reviewStorage;
     private final ReviewRateStorage reviewRateStorage;
+    private final FeedStorage feedStorage;
     private final FilmService filmService;
     private final UserService userService;
     private final ReviewMapper reviewMapper;
+    private final FeedService feedService;
 
     public List<ReviewDto> getReviews(Integer count) {
         return reviewStorage.findAll(count).stream()
@@ -60,6 +61,7 @@ public class ReviewService {
         filmService.getFilmById(request.getFilmId());
         Review review = reviewMapper.toReview(request);
         review = reviewStorage.create(review);
+        feedStorage.save(feedService.create(review.getUserId(), EventType.REVIEW, Operation.ADD, review.getId()));
         log.info("Creating review is successful: {}", review);
         return reviewMapper.toDto(review);
     }
@@ -74,6 +76,7 @@ public class ReviewService {
         Review review = getReviewById(request.getId());
         review = reviewMapper.updateReview(review, request);
         review = reviewStorage.update(review);
+        feedStorage.save(feedService.create(review.getUserId(), EventType.REVIEW, Operation.UPDATE, review.getId()));
         log.info("Updating review is successful: {}", review);
         return reviewMapper.toDto(review);
     }
@@ -81,6 +84,7 @@ public class ReviewService {
     public void removeReview(Long reviewId) {
         Review review = getReviewById(reviewId);
         reviewStorage.remove(review);
+        feedStorage.save(feedService.create(review.getUserId(), EventType.REVIEW, Operation.REMOVE, review.getId()));
     }
 
     public ReviewDto like(Long reviewId, Long userId) {
