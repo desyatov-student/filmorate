@@ -12,10 +12,7 @@ import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.DirectorStorage;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.GenreStorage;
-import ru.yandex.practicum.filmorate.storage.MpaStorage;
+import ru.yandex.practicum.filmorate.storage.*;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -35,9 +32,13 @@ public class FilmServiceTests {
     @MockBean
     private DirectorStorage directorStorage;
     @MockBean
+    private FeedStorage feedStorage;
+    @MockBean
     private MpaStorage mpaStorage;
     @MockBean
     private UserService userService;
+    @MockBean
+    private FeedService feedService;
     @Autowired
     private FilmService filmService;
     @Autowired
@@ -62,4 +63,3 @@ public class FilmServiceTests {
         Mockito.verifyNoMoreInteractions(filmStorage);
     }
 }
-
