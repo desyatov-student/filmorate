@@ -73,7 +73,6 @@ CREATE TABLE IF NOT EXISTS review_rates (
 ALTER TABLE review_rates DROP CONSTRAINT IF EXISTS uq_review_rates;
 ALTER TABLE review_rates ADD CONSTRAINT uq_review_rates UNIQUE(review_id, user_id);
 
-
 CREATE TABLE IF NOT EXISTS feeds (
     event_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     timestamp TIMESTAMP,
