@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
-import ru.yandex.practicum.filmorate.model.SortOrderFilmsByDirector;
 import ru.yandex.practicum.filmorate.model.SearchMode;
+import ru.yandex.practicum.filmorate.model.SortOrderFilmsByDirector;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
@@ -98,17 +98,9 @@ public class FilmController {
 
     @GetMapping("/search")
     public List<FilmDto> search(
-          @RequestParam String query,
-          @RequestParam List<SearchMode> by
+            @RequestParam String query,
+            @RequestParam List<SearchMode> by
     ) {
         return filmService.search(query, by);
-    }
-
-    @GetMapping("/director/{directorId}")
-    public List<FilmDto> getDirectorFilms(
-            @PathVariable Long directorId,
-            @RequestParam(defaultValue = "10") @Pattern(regexp = "year|likes") String sortBy
-    ) {
-        return filmService.getDirectorFilms(directorId, sortBy);
     }
 }

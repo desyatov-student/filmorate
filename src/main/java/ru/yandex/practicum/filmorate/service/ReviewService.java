@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dto.FeedDto;
 import ru.yandex.practicum.filmorate.dto.review.NewReviewRequest;
 import ru.yandex.practicum.filmorate.dto.review.ReviewDto;
 import ru.yandex.practicum.filmorate.dto.review.UpdateReviewRequest;
@@ -13,11 +12,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.ReviewRate;
 import ru.yandex.practicum.filmorate.storage.ReviewRateStorage;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,7 +24,6 @@ public class ReviewService {
 
     private final ReviewStorage reviewStorage;
     private final ReviewRateStorage reviewRateStorage;
-    private final FeedStorage feedStorage;
     private final FilmService filmService;
     private final UserService userService;
     private final ReviewMapper reviewMapper;
@@ -65,13 +60,6 @@ public class ReviewService {
         filmService.getFilmById(request.getFilmId());
         Review review = reviewMapper.toReview(request);
         review = reviewStorage.create(review);
-        feedStorage.save(
-                new FeedDto(
-                        Instant.now().toEpochMilli(),
-                        review.getUserId(),
-                        EventType.REVIEW,
-                        Operation.ADD,
-                        review.getId()));
         log.info("Creating review is successful: {}", review);
         return reviewMapper.toDto(review);
     }
@@ -86,13 +74,6 @@ public class ReviewService {
         Review review = getReviewById(request.getId());
         review = reviewMapper.updateReview(review, request);
         review = reviewStorage.update(review);
-        feedStorage.save(
-                new FeedDto(
-                        Instant.now().toEpochMilli(),
-                        review.getUserId(),
-                        EventType.REVIEW,
-                        Operation.UPDATE,
-                        review.getId()));
         log.info("Updating review is successful: {}", review);
         return reviewMapper.toDto(review);
     }
@@ -100,14 +81,6 @@ public class ReviewService {
     public void removeReview(Long reviewId) {
         Review review = getReviewById(reviewId);
         reviewStorage.remove(review);
-        feedStorage.save(
-                new FeedDto(
-                        Instant.now().toEpochMilli(),
-                        review.getUserId(),
-                        EventType.REVIEW,
-                        Operation.REMOVE,
-                        review.getId()));
-
     }
 
     public ReviewDto like(Long reviewId, Long userId) {
