@@ -23,13 +23,14 @@ public class FeedService {
         return feedStorage.getFeed(id).stream().map(feedMapper::toDto).toList();
     }
 
-    public Feed create(Long userId, EventType eventType, Operation operation, Long entityId) {
-        return new Feed(
+    public void create(Long userId, EventType eventType, Operation operation, Long entityId) {
+        Feed feed = new Feed(
                 null,
                 Instant.now().toEpochMilli(),
                 userId,
                 eventType,
                 operation,
                 entityId);
+        feedStorage.save(feed);
     }
 }

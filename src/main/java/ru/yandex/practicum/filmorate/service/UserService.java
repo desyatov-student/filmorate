@@ -17,7 +17,6 @@ import ru.yandex.practicum.filmorate.mappers.UserMapperImpl;
 import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -31,7 +30,6 @@ public class UserService {
 
     private final UserStorage userDbStorage;
     private final FilmStorage filmDbStorage;
-    private final FeedStorage feedStorage;
     private final UserMapper userMapper = new UserMapperImpl();
     private final FilmMapper filmMapper = new FilmMapperImpl();
     private final FeedService feedService;
@@ -98,14 +96,14 @@ public class UserService {
             throw new DuplicatedDataException(message);
         }
         userDbStorage.saveFriend(user, friend);
-        feedStorage.save(feedService.create(user.getId(), EventType.FRIEND, Operation.ADD, friend.getId()));
+        feedService.create(user.getId(), EventType.FRIEND, Operation.ADD, friend.getId());
     }
 
     public void removeFriend(Long id, Long friendId) {
         User user = getUserById(id);
         User friend = getFriend(friendId);
         userDbStorage.removeFriend(user, friend);
-        feedStorage.save(feedService.create(user.getId(), EventType.FRIEND, Operation.REMOVE, friend.getId()));
+        feedService.create(user.getId(), EventType.FRIEND, Operation.REMOVE, friend.getId());
     }
 
     public void removeUser(Long id) {

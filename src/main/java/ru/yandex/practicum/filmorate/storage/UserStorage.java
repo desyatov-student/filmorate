@@ -17,7 +17,7 @@ public interface UserStorage {
 
     User update(User newUser);
 
-    Long saveFriend(User user, User friend);
+    void saveFriend(User user, User friend);
 
     boolean hasFriend(User user, User friend);
 

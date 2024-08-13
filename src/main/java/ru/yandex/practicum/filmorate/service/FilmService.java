@@ -18,7 +18,6 @@ import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
-import ru.yandex.practicum.filmorate.storage.FeedStorage;
 
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
@@ -35,7 +34,6 @@ public class FilmService {
     private final MpaStorage mpaDbStorage;
     private final UserService userService;
     private final FeedService feedService;
-    private final FeedStorage feedDbStorage;
     private final FilmMapper filmMapper = new FilmMapperImpl();
 
     public List<FilmDto> getFilms() {
@@ -130,14 +128,14 @@ public class FilmService {
             throw new DuplicatedDataException(message);
         }
         filmDbStorage.like(film, user.getId());
-        feedDbStorage.save(feedService.create(userId, EventType.LIKE, Operation.ADD, id));
+        feedService.create(userId, EventType.LIKE, Operation.ADD, id);
     }
 
     public void removeLike(Long id, Long userId) {
         UserDto user = getUserById(userId);
         Film film = getFilmById(id);
         filmDbStorage.removeLike(film, user.getId());
-        feedDbStorage.save(feedService.create(userId, EventType.LIKE, Operation.REMOVE, id));
+        feedService.create(userId, EventType.LIKE, Operation.REMOVE, id);
     }
 
     public void removeFilm(Long id) {
