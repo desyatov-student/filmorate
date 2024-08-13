@@ -122,11 +122,11 @@ public class FilmService {
     public void like(Long id, Long userId) {
         UserDto user = getUserById(userId);
         Film film = getFilmById(id);
+        feedService.create(userId, EventType.LIKE, Operation.ADD, id);
         if (filmDbStorage.hasLike(film, user.getId())) {
             return;
         }
         filmDbStorage.like(film, user.getId());
-        feedService.create(userId, EventType.LIKE, Operation.ADD, id);
     }
 
     public void removeLike(Long id, Long userId) {
