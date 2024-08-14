@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.SearchMode;
 import ru.yandex.practicum.filmorate.model.SortOrderFilmsByDirector;
 
 import java.util.List;
@@ -26,7 +27,7 @@ public interface FilmStorage {
 
     List<Film> getPopular(Long count, Long genreId, Long year);
 
-    List<Film> search(String query, boolean searchTitle, boolean searchDirector);
+    List<Film> search(String query, SearchMode searchMode);
 
     List<Film> findRecommendations(Long userId);
 

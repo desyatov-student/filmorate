@@ -8,11 +8,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.dbstorage.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.dbstorage.UserDbStorage;
+import ru.yandex.practicum.filmorate.storage.dbstorage.mappers.FilmRowMapper;
+import ru.yandex.practicum.filmorate.storage.dbstorage.mappers.UserRowMapper;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -26,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@ComponentScan
+@Import({FilmDbStorage.class, UserDbStorage.class, FilmRowMapper.class, UserRowMapper.class})
 class FilmDbStorageTests {
 
     private final FilmDbStorage filmStorage;
@@ -274,11 +276,9 @@ class FilmDbStorageTests {
     public void searchByTitleTest() {
         //Given
         String query = "крад";
-        boolean searchByTitle = true;
-        boolean searchByDirector = false;
 
         //When
-        List<Film> results = filmStorage.search(query, searchByTitle, searchByDirector);
+        List<Film> results = filmStorage.search(query, SearchMode.TITLE);
 
         //Then
         assertThat(results).size().isEqualTo(2);
@@ -298,11 +298,9 @@ class FilmDbStorageTests {
     public void searchByTitleThatHasZeroDirectorsTest() {
         //Given
         String query = "lm4";
-        boolean searchByTitle = true;
-        boolean searchByDirector = false;
 
         //When
-        List<Film> results = filmStorage.search(query, searchByTitle, searchByDirector);
+        List<Film> results = filmStorage.search(query, SearchMode.TITLE);
 
         //Then
         assertThat(results).size().isEqualTo(1);
@@ -317,11 +315,9 @@ class FilmDbStorageTests {
     public void searchByEmptyTitleTest() {
         //Given
         String query = "";
-        boolean searchByTitle = true;
-        boolean searchByDirector = false;
 
         //When
-        List<Film> results = filmStorage.search(query, searchByTitle, searchByDirector);
+        List<Film> results = filmStorage.search(query, SearchMode.TITLE);
 
         //Then
         assertThat(results).isEmpty();
@@ -333,11 +329,9 @@ class FilmDbStorageTests {
     public void searchByDirectorTest() {
         //Given
         String query = "рад";
-        boolean searchByTitle = false;
-        boolean searchByDirector = true;
 
         //When
-        List<Film> results = filmStorage.search(query, searchByTitle, searchByDirector);
+        List<Film> results = filmStorage.search(query, SearchMode.DIRECTOR);
 
         //Then
         assertThat(results).size().isEqualTo(1);
@@ -353,11 +347,9 @@ class FilmDbStorageTests {
     public void searchByEmptyDirectorTest() {
         //Given
         String query = "";
-        boolean searchByTitle = false;
-        boolean searchByDirector = true;
 
         //When
-        List<Film> results = filmStorage.search(query, searchByTitle, searchByDirector);
+        List<Film> results = filmStorage.search(query, SearchMode.DIRECTOR);
 
         //Then
         assertThat(results).isEmpty();
@@ -369,11 +361,9 @@ class FilmDbStorageTests {
     public void searchByTitleAndDirectorTest() {
         //Given
         String query = "КрАд";
-        boolean searchByTitle = true;
-        boolean searchByDirector = true;
 
         //When
-        List<Film> results = filmStorage.search(query, searchByTitle, searchByDirector);
+        List<Film> results = filmStorage.search(query, SearchMode.DIRECTOR_AND_TITLE);
 
         //Then
         assertThat(results).size().isEqualTo(3);
@@ -397,11 +387,9 @@ class FilmDbStorageTests {
     public void searchByEmptyTitleAndDirectorTest() {
         //Given
         String query = "";
-        boolean searchByTitle = true;
-        boolean searchByDirector = true;
 
         //When
-        List<Film> results = filmStorage.search(query, searchByTitle, searchByDirector);
+        List<Film> results = filmStorage.search(query, SearchMode.DIRECTOR_AND_TITLE);
 
         //Then
         assertThat(results).isEmpty();

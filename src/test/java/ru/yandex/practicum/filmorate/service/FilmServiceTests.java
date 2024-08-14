@@ -9,7 +9,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
-import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.*;
@@ -22,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {FilmService.class, FilmMapperImpl.class})
+@ContextConfiguration(classes = {FilmService.class})
 public class FilmServiceTests {
 
     @MockBean
@@ -37,8 +36,6 @@ public class FilmServiceTests {
     private MpaStorage mpaStorage;
     @MockBean
     private UserService userService;
-    @MockBean
-    private FeedService feedService;
     @Autowired
     private FilmService filmService;
     @Autowired

@@ -4,10 +4,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.SortOrderFilmsByDirector;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.ArrayList;
@@ -298,35 +295,40 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
                 return findMany(FIND_POPULAR_BY_DIRECTOR_QUERY, directorId, directorId);
             case YEAR:
                 return findMany(FIND_FILMS_BY_YEAR_BY_DIRECTOR_QUERY, directorId, directorId);
-            default: return null;
+            default:
+                return null;
         }
     }
 
 
-    public List<Film> search(String query, boolean searchByTitle, boolean searchByDirector) {
+    public List<Film> search(String query, SearchMode searchMode) {
         if (query.isEmpty() || query.isBlank()) {
             return new ArrayList<>();
         }
 
         String searchQuery = BASE_FOR_SEARCH_QUERY;
-        if (searchByTitle && searchByDirector) {
-            searchQuery += """
-                    WHERE LOWER(f.name) LIKE CONCAT('%s', '%s', '%s') OR LOWER(d.name) LIKE CONCAT('%s', '%s', '%s')
-                    GROUP BY f.ID
-                    ORDER BY count DESC;
-                    """.formatted("%", query.toLowerCase(), "%", "%", query.toLowerCase(), "%");
-        } else if (searchByTitle) {
-            searchQuery += """
-                    WHERE LOWER(f.name) LIKE CONCAT('%s', '%s', '%s')
-                    GROUP BY f.ID
-                    ORDER BY count DESC;
-                    """.formatted("%", query.toLowerCase(), "%");
-        } else {
-            searchQuery += """
-                    WHERE LOWER(d.name) LIKE CONCAT('%s', '%s', '%s')
-                    GROUP BY f.ID
-                    ORDER BY count DESC;
-                    """.formatted("%", query.toLowerCase(), "%");
+        switch (searchMode) {
+            case DIRECTOR_AND_TITLE:
+                searchQuery += """
+                        WHERE LOWER(f.name) LIKE CONCAT('%s', '%s', '%s') OR LOWER(d.name) LIKE CONCAT('%s', '%s', '%s')
+                        GROUP BY f.ID
+                        ORDER BY count DESC;
+                        """.formatted("%", query.toLowerCase(), "%", "%", query.toLowerCase(), "%");
+                break;
+            case TITLE:
+                searchQuery += """
+                        WHERE LOWER(f.name) LIKE CONCAT('%s', '%s', '%s')
+                        GROUP BY f.ID
+                        ORDER BY count DESC;
+                        """.formatted("%", query.toLowerCase(), "%");
+                break;
+            case DIRECTOR:
+                searchQuery += """
+                        WHERE LOWER(d.name) LIKE CONCAT('%s', '%s', '%s')
+                        GROUP BY f.ID
+                        ORDER BY count DESC;
+                        """.formatted("%", query.toLowerCase(), "%");
+                break;
         }
         return findMany(searchQuery);
     }

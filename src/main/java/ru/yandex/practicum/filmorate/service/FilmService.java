@@ -156,10 +156,12 @@ public class FilmService {
                 .toList();
     }
 
-    public List<FilmDto> search(String query, List<SearchMode> modes) {
-        boolean searchByTitle = modes.contains(SearchMode.TITLE);
-        boolean searchByDirector = modes.contains(SearchMode.DIRECTOR);
-        return filmDbStorage.search(query, searchByTitle, searchByDirector).stream()
+    public List<FilmDto> search(String query, SearchMode searchMode) {
+        if (searchMode == null) {
+            log.error("Find films is failed. Param \"by\" not valid");
+            throw new ConditionsNotMetException("Param \"by\" not valid");
+        }
+        return filmDbStorage.search(query, searchMode).stream()
                 .map(filmMapper::toDto)
                 .toList();
     }
