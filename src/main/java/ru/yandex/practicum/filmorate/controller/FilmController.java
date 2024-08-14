@@ -102,7 +102,7 @@ public class FilmController {
     ) {
         return filmService.search(
                 query,
-                by.stream().map(String::toUpperCase).map(SearchMode::from).toList()
+                by.stream().map(SearchMode::from).toList()
         );
     }
 }

@@ -8,7 +8,7 @@ public enum SearchMode {
 
     public static SearchMode from(String value) {
         try {
-            return SearchMode.valueOf(value);
+            return SearchMode.valueOf(value.toUpperCase());
         } catch (IllegalArgumentException e) {
             String message = String.format("Unknown search parameter: %s", value.toLowerCase());
             throw new ValidationException(message);
