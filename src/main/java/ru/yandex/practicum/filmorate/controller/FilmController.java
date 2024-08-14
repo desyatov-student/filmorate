@@ -91,7 +91,7 @@ public class FilmController {
     @GetMapping("/director/{directorId}")
     public List<FilmDto> getDirectorFilms(
             @PathVariable Long directorId,
-            @RequestParam(defaultValue = "year") @Pattern(regexp = "year|likes") String sortBy
+            @RequestParam(defaultValue = "year") String sortBy
     ) {
         return filmService.getDirectorFilms(directorId, SortOrderFilmsByDirector.from(sortBy));
     }

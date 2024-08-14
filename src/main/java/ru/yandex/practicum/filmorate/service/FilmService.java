@@ -179,6 +179,10 @@ public class FilmService {
     }
 
     public List<FilmDto> getDirectorFilms(Long directorId, SortOrderFilmsByDirector sortBy) {
+        if (sortBy == null) {
+            log.error("Find directors films is failed. Param \"sortBy\" not valid");
+            throw new ConditionsNotMetException("Param \"sortBy\" not valid");
+        }
         if (directorDbStorage.findById(directorId).isEmpty()) {
             throw new NotFoundException(String.format("Director with id = %d not found", directorId));
         }
