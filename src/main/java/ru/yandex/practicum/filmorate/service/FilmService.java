@@ -32,7 +32,6 @@ public class FilmService {
     private final DirectorStorage directorDbStorage;
     private final MpaStorage mpaDbStorage;
     private final UserService userService;
-    private final FeedService feedService;
     private final FilmMapper filmMapper;
 
     public List<FilmDto> getFilms() {
@@ -121,7 +120,7 @@ public class FilmService {
     public void like(Long id, Long userId) {
         UserDto user = getUserById(userId);
         Film film = getFilmById(id);
-        feedService.create(userId, EventType.LIKE, Operation.ADD, id);
+        userService.createFeed(userId, EventType.LIKE, Operation.ADD, id);
         if (filmDbStorage.hasLike(film, user.getId())) {
             return;
         }
@@ -132,7 +131,7 @@ public class FilmService {
         UserDto user = getUserById(userId);
         Film film = getFilmById(id);
         filmDbStorage.removeLike(film, user.getId());
-        feedService.create(userId, EventType.LIKE, Operation.REMOVE, id);
+        userService.createFeed(userId, EventType.LIKE, Operation.REMOVE, id);
     }
 
     public void removeFilm(Long id) {

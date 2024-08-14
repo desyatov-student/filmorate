@@ -18,7 +18,6 @@ import ru.yandex.practicum.filmorate.dto.feed.FeedDto;
 import ru.yandex.practicum.filmorate.dto.user.NewUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
-import ru.yandex.practicum.filmorate.service.FeedService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
@@ -30,7 +29,6 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final FeedService feedService;
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
@@ -47,7 +45,7 @@ public class UserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto create(@Valid @RequestBody NewUserRequest user) {
-        return userService.create(user);
+        return userService.createFeed(user);
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -106,6 +104,6 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{id}/feed")
     public List<FeedDto> getFeeds(@PathVariable Long id) {
-        return feedService.getFeeds(id);
+        return userService.getFeeds(id);
     }
 }
