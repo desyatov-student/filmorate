@@ -8,7 +8,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import ru.yandex.practicum.filmorate.helpers.TestData;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.ReviewRate;
@@ -16,6 +16,10 @@ import ru.yandex.practicum.filmorate.storage.dbstorage.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.dbstorage.ReviewDbStorage;
 import ru.yandex.practicum.filmorate.storage.dbstorage.ReviewRateDbStorage;
 import ru.yandex.practicum.filmorate.storage.dbstorage.UserDbStorage;
+import ru.yandex.practicum.filmorate.storage.dbstorage.mappers.FilmRowMapper;
+import ru.yandex.practicum.filmorate.storage.dbstorage.mappers.ReviewRateRowMapper;
+import ru.yandex.practicum.filmorate.storage.dbstorage.mappers.ReviewRowMapper;
+import ru.yandex.practicum.filmorate.storage.dbstorage.mappers.UserRowMapper;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +29,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@ComponentScan
+@Import({FilmDbStorage.class, UserDbStorage.class, ReviewDbStorage.class, ReviewRateDbStorage.class,
+        FilmRowMapper.class, UserRowMapper.class, ReviewRowMapper.class, ReviewRateRowMapper.class})
 public class ReviewDbStorageTests {
 
     private final ReviewDbStorage reviewStorage;

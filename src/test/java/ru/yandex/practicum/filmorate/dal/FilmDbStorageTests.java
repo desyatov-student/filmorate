@@ -396,7 +396,7 @@ class FilmDbStorageTests {
     }
 
     @Test
-    void getFilms_ReturnListOfFilms_NoError () {
+    void getFilms_ReturnListOfFilms_NoError() {
         Collection<Film> films = filmStorage.findAll();
         assertTrue(films.size() == 4);
         assertThat(films.stream().findFirst())
