@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.dto.film.NewFilmRequest;
 import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.SearchMode;
 import ru.yandex.practicum.filmorate.model.SortOrderFilmsByDirector;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -102,7 +103,7 @@ public class FilmController {
     ) {
         return filmService.search(
                 query,
-                by.stream().map(String::toUpperCase).map(SearchMode::valueOf).toList()
+                by.stream().map(String::toUpperCase).map(SearchMode::from).toList()
         );
     }
 }
