@@ -1,23 +1,17 @@
 package ru.yandex.practicum.filmorate.model;
 
+import ru.yandex.practicum.filmorate.exception.ValidationException;
+
 public enum SearchMode {
-    WITHOUT_PARAM,
-    DIRECTOR_AND_TITLE,
     DIRECTOR,
     TITLE;
 
-    public static SearchMode from(String order) {
-        switch (order.toLowerCase()) {
-            case "director,title", "title,director":
-                return DIRECTOR_AND_TITLE;
-            case "director":
-                return DIRECTOR;
-            case "title":
-                return TITLE;
-            case "":
-                return WITHOUT_PARAM;
-            default:
-                return null;
+    public static SearchMode from(String value) {
+        try {
+            return SearchMode.valueOf(value.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            String message = String.format("Unknown search parameter: %s", value.toLowerCase());
+            throw new ValidationException(message);
         }
     }
 }

@@ -156,8 +156,8 @@ public class FilmService {
                 .toList();
     }
 
-    public List<FilmDto> search(String query, SearchMode searchMode) {
-        if (searchMode == null) {
+    public List<FilmDto> search(String query, List<SearchMode> searchMode) {
+        if (searchMode.isEmpty()) {
             log.error("Find films is failed. Param \"by\" not valid");
             throw new ConditionsNotMetException("Param \"by\" not valid");
         }

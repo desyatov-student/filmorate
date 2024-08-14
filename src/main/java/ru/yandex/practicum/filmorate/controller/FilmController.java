@@ -98,8 +98,11 @@ public class FilmController {
     @GetMapping("/search")
     public List<FilmDto> search(
             @RequestParam String query,
-            @RequestParam String by
+            @RequestParam List<String> by
     ) {
-        return filmService.search(query, SearchMode.from(by));
+        return filmService.search(
+                query,
+                by.stream().map(SearchMode::from).toList()
+        );
     }
 }
