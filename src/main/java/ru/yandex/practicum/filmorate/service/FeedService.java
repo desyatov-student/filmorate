@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.FeedDto;
 import ru.yandex.practicum.filmorate.mappers.FeedMapper;
-import ru.yandex.practicum.filmorate.mappers.FeedMapperImpl;
 import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Operation;
@@ -20,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FeedService {
     private final FeedStorage feedStorage;
-    private final FeedMapper feedMapper = new FeedMapperImpl();
+    private final FeedMapper feedMapper;
     private UserService userService;
 
     @Autowired

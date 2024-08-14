@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.MpaDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.MpaMapper;
-import ru.yandex.practicum.filmorate.mappers.MpaMapperImpl;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
@@ -18,7 +17,7 @@ import java.util.List;
 public class MpaService {
 
     private final MpaStorage mpaDbStorage;
-    private final MpaMapper mpaMapper = new MpaMapperImpl();
+    private final MpaMapper mpaMapper;
 
     public List<MpaDto> getMpa() {
         return mpaDbStorage.findAll().stream()

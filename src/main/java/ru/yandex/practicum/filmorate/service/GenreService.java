@@ -18,7 +18,7 @@ import java.util.List;
 public class GenreService {
 
     private final GenreStorage genreDbStorage;
-    private final GenreMapper genreMapper = new GenreMapperImpl();
+    private final GenreMapper genreMapper;
 
     public List<GenreDto> getGenres() {
         return genreDbStorage.findAll().stream()

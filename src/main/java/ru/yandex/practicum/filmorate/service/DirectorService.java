@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.dto.*;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.DirectorMapper;
-import ru.yandex.practicum.filmorate.mappers.DirectorMapperImpl;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 
@@ -18,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DirectorService {
     private final DirectorStorage directorDbStorage;
-    private final DirectorMapper directorMapper = new DirectorMapperImpl();
+    private final DirectorMapper directorMapper;
 
     private Director getDirectorById(Long directorId) {
         return getDirectorById(directorId, String.format("Director with id %d is not found", directorId));

@@ -6,7 +6,9 @@ import ru.yandex.practicum.filmorate.dto.UpdateDirectorRequest;
 import ru.yandex.practicum.filmorate.dto.DirectorDto;
 import ru.yandex.practicum.filmorate.model.Director;
 
-@Mapper
+import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
+
+@Mapper(componentModel = SPRING)
 public interface DirectorMapper {
     DirectorDto toDto(Director director);
 

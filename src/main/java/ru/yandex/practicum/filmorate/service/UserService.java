@@ -11,9 +11,7 @@ import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
-import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
 import ru.yandex.practicum.filmorate.mappers.UserMapper;
-import ru.yandex.practicum.filmorate.mappers.UserMapperImpl;
 import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.User;
@@ -30,8 +28,8 @@ public class UserService {
 
     private final UserStorage userDbStorage;
     private final FilmStorage filmDbStorage;
-    private final UserMapper userMapper = new UserMapperImpl();
-    private final FilmMapper filmMapper = new FilmMapperImpl();
+    private final UserMapper userMapper;
+    private final FilmMapper filmMapper;
     private final FeedService feedService;
 
     public List<UserDto> getUsers() {

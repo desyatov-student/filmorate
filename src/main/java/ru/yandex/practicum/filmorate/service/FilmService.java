@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
-import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -34,7 +33,7 @@ public class FilmService {
     private final MpaStorage mpaDbStorage;
     private final UserService userService;
     private final FeedService feedService;
-    private final FilmMapper filmMapper = new FilmMapperImpl();
+    private final FilmMapper filmMapper;
 
     public List<FilmDto> getFilms() {
         return filmDbStorage.findAll().stream()
