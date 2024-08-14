@@ -394,4 +394,16 @@ class FilmDbStorageTests {
         //Then
         assertThat(results).isEmpty();
     }
+
+    @Test
+    void getFilms_ReturnListOfFilms_NoError () {
+        Collection<Film> films = filmStorage.findAll();
+        assertTrue(films.size() == 4);
+        assertThat(films.stream().findFirst())
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .ignoringActualNullFields()
+                .isEqualTo(getFilm());
+    }
 }
