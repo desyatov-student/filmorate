@@ -53,7 +53,7 @@ public class UserService {
         return getUserById(userId, String.format("Пользователь с id = %d не найден", userId));
     }
 
-    public UserDto createFeed(NewUserRequest request) {
+    public UserDto create(NewUserRequest request) {
 
         if (request.getEmail() == null || request.getEmail().isEmpty()) {
             throw new ConditionsNotMetException("Имейл должен быть указан");

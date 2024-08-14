@@ -22,10 +22,7 @@ public class DirectorService {
     private final DirectorMapper directorMapper;
 
     private Director getDirectorById(Long directorId) {
-        return getDirectorById(directorId, String.format("Director with id %d is not found", directorId));
-    }
-
-    private Director getDirectorById(Long directorId, String errorMessage) {
+        String errorMessage = String.format("Director with id %d is not found", directorId);
         return directorDbStorage.findById(directorId)
                 .orElseThrow(() -> {
                     log.error(errorMessage);

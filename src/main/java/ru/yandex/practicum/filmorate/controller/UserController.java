@@ -45,7 +45,7 @@ public class UserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto create(@Valid @RequestBody NewUserRequest user) {
-        return userService.createFeed(user);
+        return userService.create(user);
     }
 
     @ResponseStatus(HttpStatus.OK)
