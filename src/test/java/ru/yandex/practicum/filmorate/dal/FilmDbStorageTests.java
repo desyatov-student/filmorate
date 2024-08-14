@@ -278,7 +278,7 @@ class FilmDbStorageTests {
         String query = "крад";
 
         //When
-        List<Film> results = filmStorage.search(query, SearchMode.TITLE);
+        List<Film> results = filmStorage.search(query, List.of(SearchMode.TITLE));
 
         //Then
         assertThat(results).size().isEqualTo(2);
@@ -300,7 +300,7 @@ class FilmDbStorageTests {
         String query = "lm4";
 
         //When
-        List<Film> results = filmStorage.search(query, SearchMode.TITLE);
+        List<Film> results = filmStorage.search(query, List.of(SearchMode.TITLE));
 
         //Then
         assertThat(results).size().isEqualTo(1);
@@ -317,7 +317,7 @@ class FilmDbStorageTests {
         String query = "";
 
         //When
-        List<Film> results = filmStorage.search(query, SearchMode.TITLE);
+        List<Film> results = filmStorage.search(query, List.of(SearchMode.TITLE));
 
         //Then
         assertThat(results).isEmpty();
@@ -331,7 +331,7 @@ class FilmDbStorageTests {
         String query = "рад";
 
         //When
-        List<Film> results = filmStorage.search(query, SearchMode.DIRECTOR);
+        List<Film> results = filmStorage.search(query, List.of(SearchMode.DIRECTOR));
 
         //Then
         assertThat(results).size().isEqualTo(1);
@@ -349,7 +349,7 @@ class FilmDbStorageTests {
         String query = "";
 
         //When
-        List<Film> results = filmStorage.search(query, SearchMode.DIRECTOR);
+        List<Film> results = filmStorage.search(query, List.of(SearchMode.DIRECTOR));
 
         //Then
         assertThat(results).isEmpty();
@@ -363,7 +363,7 @@ class FilmDbStorageTests {
         String query = "КрАд";
 
         //When
-        List<Film> results = filmStorage.search(query, SearchMode.DIRECTOR_AND_TITLE);
+        List<Film> results = filmStorage.search(query, List.of(SearchMode.TITLE, SearchMode.DIRECTOR));
 
         //Then
         assertThat(results).size().isEqualTo(3);
@@ -389,7 +389,7 @@ class FilmDbStorageTests {
         String query = "";
 
         //When
-        List<Film> results = filmStorage.search(query, SearchMode.DIRECTOR_AND_TITLE);
+        List<Film> results = filmStorage.search(query, List.of(SearchMode.DIRECTOR, SearchMode.TITLE));
 
         //Then
         assertThat(results).isEmpty();

@@ -301,36 +301,36 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
     }
 
 
-    public List<Film> search(String query, SearchMode searchMode) {
+    public List<Film> search(String query, List<SearchMode> searchMode) {
         if (query.isEmpty() || query.isBlank()) {
             return new ArrayList<>();
         }
+        String searchQuery = getSearchQuery(query, searchMode);
+        return findMany(searchQuery);
+    }
 
+    private static String getSearchQuery(String query, List<SearchMode> searchMode) {
         String searchQuery = BASE_FOR_SEARCH_QUERY;
-        switch (searchMode) {
-            case DIRECTOR_AND_TITLE:
-                searchQuery += """
+        if (searchMode.contains(SearchMode.TITLE) && searchMode.contains(SearchMode.DIRECTOR)) {
+            searchQuery += """
                         WHERE LOWER(f.name) LIKE CONCAT('%s', '%s', '%s') OR LOWER(d.name) LIKE CONCAT('%s', '%s', '%s')
                         GROUP BY f.ID
                         ORDER BY count DESC;
                         """.formatted("%", query.toLowerCase(), "%", "%", query.toLowerCase(), "%");
-                break;
-            case TITLE:
-                searchQuery += """
+        } else if (searchMode.contains(SearchMode.TITLE)) {
+            searchQuery += """
                         WHERE LOWER(f.name) LIKE CONCAT('%s', '%s', '%s')
                         GROUP BY f.ID
                         ORDER BY count DESC;
                         """.formatted("%", query.toLowerCase(), "%");
-                break;
-            case DIRECTOR:
-                searchQuery += """
+        } else if (searchMode.contains(SearchMode.DIRECTOR)) {
+            searchQuery += """
                         WHERE LOWER(d.name) LIKE CONCAT('%s', '%s', '%s')
                         GROUP BY f.ID
                         ORDER BY count DESC;
                         """.formatted("%", query.toLowerCase(), "%");
-                break;
         }
-        return findMany(searchQuery);
+        return searchQuery;
     }
 
     private void saveFilmGenres(Film film) {
