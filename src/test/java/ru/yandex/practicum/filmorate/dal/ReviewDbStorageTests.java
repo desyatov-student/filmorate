@@ -12,6 +12,10 @@ import org.springframework.context.annotation.ComponentScan;
 import ru.yandex.practicum.filmorate.helpers.TestData;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.ReviewRate;
+import ru.yandex.practicum.filmorate.storage.dbstorage.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.dbstorage.ReviewDbStorage;
+import ru.yandex.practicum.filmorate.storage.dbstorage.ReviewRateDbStorage;
+import ru.yandex.practicum.filmorate.storage.dbstorage.UserDbStorage;
 
 import java.util.List;
 import java.util.Optional;

@@ -11,6 +11,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.model.*;
+import ru.yandex.practicum.filmorate.storage.dbstorage.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.dbstorage.UserDbStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

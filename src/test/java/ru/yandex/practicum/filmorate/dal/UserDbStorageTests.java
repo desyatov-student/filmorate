@@ -6,7 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.test.context.ContextConfiguration;
-import ru.yandex.practicum.filmorate.dal.mappers.UserRowMapper;
+import ru.yandex.practicum.filmorate.storage.dbstorage.UserDbStorage;
+import ru.yandex.practicum.filmorate.storage.dbstorage.mappers.UserRowMapper;
 import ru.yandex.practicum.filmorate.helpers.TestData;
 import ru.yandex.practicum.filmorate.model.User;
 

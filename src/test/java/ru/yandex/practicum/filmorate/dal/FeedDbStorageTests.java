@@ -11,6 +11,8 @@ import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.dbstorage.FeedDbStorage;
+import ru.yandex.practicum.filmorate.storage.dbstorage.UserDbStorage;
 
 import java.time.Instant;
 import java.time.LocalDate;

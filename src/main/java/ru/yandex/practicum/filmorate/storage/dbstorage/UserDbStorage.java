@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dal;
+package ru.yandex.practicum.filmorate.storage.dbstorage;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
