@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate.mappers;
 
 import org.mapstruct.*;
-import ru.yandex.practicum.filmorate.dto.NewDirectorRequest;
-import ru.yandex.practicum.filmorate.dto.UpdateDirectorRequest;
-import ru.yandex.practicum.filmorate.dto.DirectorDto;
+import ru.yandex.practicum.filmorate.dto.director.NewDirectorRequest;
+import ru.yandex.practicum.filmorate.dto.director.UpdateDirectorRequest;
+import ru.yandex.practicum.filmorate.dto.director.DirectorDto;
 import ru.yandex.practicum.filmorate.model.Director;
 
 import static org.mapstruct.MappingConstants.ComponentModel.SPRING;

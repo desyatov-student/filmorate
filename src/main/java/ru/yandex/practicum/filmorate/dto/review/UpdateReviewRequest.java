@@ -11,7 +11,7 @@ import ru.yandex.practicum.filmorate.validation.NotBlankOrNull;
 public class UpdateReviewRequest {
     @NotNull
     @JsonProperty("reviewId")
-    Long id;
+    private Long id;
     @NotBlankOrNull
     private String content;
     private Boolean isPositive;

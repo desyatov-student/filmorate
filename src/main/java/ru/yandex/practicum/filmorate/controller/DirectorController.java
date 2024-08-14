@@ -4,9 +4,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.dto.DirectorDto;
-import ru.yandex.practicum.filmorate.dto.NewDirectorRequest;
-import ru.yandex.practicum.filmorate.dto.UpdateDirectorRequest;
+import ru.yandex.practicum.filmorate.dto.director.DirectorDto;
+import ru.yandex.practicum.filmorate.dto.director.NewDirectorRequest;
+import ru.yandex.practicum.filmorate.dto.director.UpdateDirectorRequest;
 import ru.yandex.practicum.filmorate.service.DirectorService;
 
 import java.util.List;
