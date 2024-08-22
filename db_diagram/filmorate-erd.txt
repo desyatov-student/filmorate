@@ -16,6 +16,21 @@ Table films {
   mpa_id integer
 }
 
+Table reviews {
+  id integer [pk]
+  content varchar
+  is_positive bool
+  user_id integer
+  film_id integer
+}
+
+Table review_rates {
+  id integer [pk]
+  review_id integer
+  user_id integer
+  is_like bool
+}
+
 Table film_likes {
   id integer [pk]
   film_id integer
@@ -46,10 +61,44 @@ Table mpa {
   name varchar
 }
 
+Table directors {
+  id bigint [pk]
+  name varchar
+}
+
+Table film_directors {
+  id bigint [pk]
+  film_id integer
+  director_id integer
+  }
+
+Table feeds {
+  event_id integer [pk]
+  timestamp timestamp
+  user_id integer
+  event_type varchar
+  operation varchar
+  entity_id integer
+}
+
 Ref: films.id < film_likes.film_id
 Ref: users.id < film_likes.user_id
+
+Ref: films.id < reviews.film_id
+Ref: users.id < reviews.user_id
+
+Ref: reviews.id < review_rates.review_id
+Ref: users.id < review_rates.user_id
+
 Ref: genres.id < film_genres.genre_id
 Ref: films.id < film_genres.film_id
+
 Ref: mpa.id < films.mpa_id
+
 Ref: users.id < friends.user_id
 Ref: users.id < friends.friend_id
+
+Ref: directors.id < film_directors.director_id
+Ref: films.id < film_directors.film_id
+
+Ref: users.id < feeds.user_id

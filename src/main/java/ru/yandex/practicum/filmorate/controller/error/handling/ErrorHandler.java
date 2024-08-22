@@ -9,6 +9,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
@@ -27,7 +29,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleNotFound(final ValidationException e) {
+    public ErrorResponse handleValidationException(final ValidationException e) {
         log.error("Bad Request", e);
         return new ErrorResponse(
                 e.getMessage()
@@ -35,11 +37,20 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleUnknownError(final Throwable e) {
-        log.error("Unknown error", e);
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleConditionsNotMetException(final ConditionsNotMetException e) {
+        log.error("Bad Request", e);
         return new ErrorResponse(
-                "Произошла непредвиденная ошибка. " + e.getMessage()
+                e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleMethodArgumentTypeMismatchException(final MethodArgumentTypeMismatchException e) {
+        log.error("Argument mismatch error", e);
+        return new ErrorResponse(
+                e.getMessage()
         );
     }
 

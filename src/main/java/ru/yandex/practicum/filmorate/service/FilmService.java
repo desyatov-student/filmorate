@@ -3,23 +3,22 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dto.FilmDto;
-import ru.yandex.practicum.filmorate.dto.GenreDto;
-import ru.yandex.practicum.filmorate.dto.MpaDto;
-import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
-import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
-import ru.yandex.practicum.filmorate.dto.UserDto;
-import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
-import ru.yandex.practicum.filmorate.exception.InternalServerException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.dto.film.FilmDto;
+import ru.yandex.practicum.filmorate.dto.genre.GenreDto;
+import ru.yandex.practicum.filmorate.dto.director.DirectorDto;
+import ru.yandex.practicum.filmorate.dto.mpa.MpaDto;
+import ru.yandex.practicum.filmorate.dto.film.NewFilmRequest;
+import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
+import ru.yandex.practicum.filmorate.dto.user.UserDto;
+import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
-import ru.yandex.practicum.filmorate.mappers.FilmMapperImpl;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.*;
+import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
+import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -30,9 +29,10 @@ public class FilmService {
 
     private final FilmStorage filmDbStorage;
     private final GenreStorage genreDbStorage;
+    private final DirectorStorage directorDbStorage;
     private final MpaStorage mpaDbStorage;
     private final UserService userService;
-    private final FilmMapper filmMapper = new FilmMapperImpl();
+    private final FilmMapper filmMapper;
 
     public List<FilmDto> getFilms() {
         return filmDbStorage.findAll().stream()
@@ -45,8 +45,14 @@ public class FilmService {
         return filmMapper.toDto(film);
     }
 
+    public Film getFilmById(Long id) {
+        return filmDbStorage.findFilmById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Фильм с id = %d не найден", id)));
+    }
+
     public FilmDto create(NewFilmRequest request) {
         validateGenres(request.getGenres());
+        validateDirectors(request.getDirectors());
         validateMpa(request.getMpa());
         Film film = filmMapper.toFilm(request);
         film = filmDbStorage.save(film);
@@ -56,6 +62,7 @@ public class FilmService {
 
     public FilmDto update(Long filmId, UpdateFilmRequest request) {
         validateGenres(request.getGenres());
+        validateDirectors(request.getDirectors());
         if (request.getMpa() != null) {
             checkMpaForExisting(request.getMpa());
         }
@@ -67,15 +74,29 @@ public class FilmService {
     }
 
     private void validateGenres(LinkedHashSet<GenreDto> genres) {
-        if (genres != null && !genres.isEmpty()) {
-            checkGenresForExisting(genres);
+        if (genres != null) {
+            genres.stream()
+                    .map(GenreDto::getId)
+                    .forEach(this::checkGenresForExisting);
         }
     }
 
-    private void checkGenresForExisting(LinkedHashSet<GenreDto> genres) {
-        for (GenreDto genre : genres) {
-            if (genreDbStorage.findById(genre.getId()).isEmpty()) {
-                throw new ValidationException(String.format("Genre not found id=%s", genre.getId()));
+    private void checkGenresForExisting(Long genreId) {
+        if (genreDbStorage.findById(genreId).isEmpty()) {
+            throw new ValidationException(String.format("Genre not found id=%s", genreId));
+        }
+    }
+
+    private void validateDirectors(LinkedHashSet<DirectorDto> directors) {
+        if (directors != null && !directors.isEmpty()) {
+            checkDirectorsForExisting(directors);
+        }
+    }
+
+    private void checkDirectorsForExisting(LinkedHashSet<DirectorDto> directors) {
+        for (DirectorDto director : directors) {
+            if (directorDbStorage.findById(director.getId()).isEmpty()) {
+                throw new ValidationException(String.format("Director not found id=%s", director.getId()));
             }
         }
     }
@@ -99,10 +120,9 @@ public class FilmService {
     public void like(Long id, Long userId) {
         UserDto user = getUserById(userId);
         Film film = getFilmById(id);
+        userService.createFeed(userId, EventType.LIKE, Operation.ADD, id);
         if (filmDbStorage.hasLike(film, user.getId())) {
-            String message = String.format("Like exists for filmId = %d, userId = %d", film.getId(), user.getId());
-            log.error(message);
-            throw new DuplicatedDataException(message);
+            return;
         }
         filmDbStorage.like(film, user.getId());
     }
@@ -111,20 +131,63 @@ public class FilmService {
         UserDto user = getUserById(userId);
         Film film = getFilmById(id);
         filmDbStorage.removeLike(film, user.getId());
+        userService.createFeed(userId, EventType.LIKE, Operation.REMOVE, id);
     }
 
-    public List<FilmDto> getPopular(Integer count) {
-        return filmDbStorage.getPopular(count).stream()
+    public void removeFilm(Long id) {
+        Film film = getFilmById(id);
+        filmDbStorage.removeFilm(film);
+    }
+
+    public List<FilmDto> getPopular(Long count, Long genreId, Long year) {
+        if (genreId != null) {
+            checkGenresForExisting(genreId);
+        }
+        if (count != null && count < 0) {
+            log.error("Find popular films is failed. Count is negative or null");
+            throw new ConditionsNotMetException("Count is negative or null");
+        }
+        if (year != null && year > LocalDate.now().getYear()) {
+            log.error("Find popular films is failed. Year is not exist");
+            throw new ConditionsNotMetException("Year is not exist");
+        }
+        return filmDbStorage.getPopular(count, genreId, year).stream()
                 .map(filmMapper::toDto)
                 .toList();
     }
 
-    private Film getFilmById(Long id) {
-        return filmDbStorage.findFilmById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Фильм с id = %d не найден", id)));
+    public List<FilmDto> search(String query, List<SearchMode> searchMode) {
+        if (searchMode.isEmpty()) {
+            log.error("Find films is failed. Param \"by\" not valid");
+            throw new ConditionsNotMetException("Param \"by\" not valid");
+        }
+        return filmDbStorage.search(query, searchMode).stream()
+                .map(filmMapper::toDto)
+                .toList();
     }
 
     private UserDto getUserById(Long id) {
         return userService.getById(id);
+    }
+
+    public List<FilmDto> getCommon(Long userId, Long friendId) {
+        getUserById(userId);
+        getUserById(friendId);
+        return filmDbStorage.getCommon(userId, friendId).stream()
+                .map(filmMapper::toDto)
+                .toList();
+    }
+
+    public List<FilmDto> getDirectorFilms(Long directorId, SortOrderFilmsByDirector sortBy) {
+        if (sortBy == null) {
+            log.error("Find directors films is failed. Param \"sortBy\" not valid");
+            throw new ConditionsNotMetException("Param \"sortBy\" not valid");
+        }
+        if (directorDbStorage.findById(directorId).isEmpty()) {
+            throw new NotFoundException(String.format("Director with id = %d not found", directorId));
+        }
+        return filmDbStorage.getDirectorFilms(directorId, sortBy).stream()
+                .map(filmMapper::toDto)
+                .toList();
     }
 }

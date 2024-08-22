@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import ru.yandex.practicum.filmorate.dto.GenreDto;
-import ru.yandex.practicum.filmorate.dto.MpaDto;
-import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
+import ru.yandex.practicum.filmorate.dto.genre.GenreDto;
+import ru.yandex.practicum.filmorate.dto.mpa.MpaDto;
+import ru.yandex.practicum.filmorate.dto.film.NewFilmRequest;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -120,7 +120,7 @@ public class FilmTests {
     private NewFilmRequest createNewFilmRequest() {
         return new NewFilmRequest(null, "film name",
                 "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tatio",
-                LocalDate.of(1895, 12, 28), 60, new LinkedHashSet<>(List.of(new GenreDto(1L, "name"))), new MpaDto(1L, "name"));
+                LocalDate.of(1895, 12, 28), 60, new LinkedHashSet<>(List.of(new GenreDto(1L, "name"))), new MpaDto(1L, "name"), new LinkedHashSet<>(List.of()));
     }
 
     private static Stream<Arguments> validate_Failed_nameIsNotValid() {

@@ -11,8 +11,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import ru.yandex.practicum.filmorate.dto.FilmDto;
-import ru.yandex.practicum.filmorate.dto.MpaDto;
+import ru.yandex.practicum.filmorate.dto.film.FilmDto;
+import ru.yandex.practicum.filmorate.dto.mpa.MpaDto;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.time.LocalDate;
@@ -42,8 +42,8 @@ public class FilmControllerTests {
 
         // Given
         List<FilmDto> expectedFilms = List.of(
-                new FilmDto(1L, "name", "desc", LocalDate.now(), 30, List.of(), new MpaDto(1L, "R1")),
-                new FilmDto(2L, "name2", "desc2", LocalDate.now(), 40, List.of(), new MpaDto(1L, "R1"))
+                new FilmDto(1L, "name", "desc", LocalDate.now(), 30, List.of(), new MpaDto(1L, "R1"), List.of()),
+                new FilmDto(2L, "name2", "desc2", LocalDate.now(), 40, List.of(), new MpaDto(1L, "R1"), List.of())
         );
         when(service.getFilms()).thenReturn(expectedFilms);
 
